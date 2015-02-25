@@ -1,0 +1,40 @@
+{
+    "name": "maybe",
+    "version": "0.0.1",
+    "description": "Simple and Powerful module for strict validation",
+
+    "homepage": "http://666.io",
+    "keywords": [
+        "validate",
+        "validation",
+        "data",
+		"fundamental",
+        "justdoit"
+    ],
+	
+    "author": {
+        "name": "Daeren Torn",
+        "email": "x@db.gg"
+    },
+
+    "main": "./index",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/Daeren/Maybe.git"
+    },
+
+    "license": "MIT",
+    "engines": {
+        "node": ">= 0.8.0"
+    },
+  
+    "readme": "",
+    "readmeFilename": "readme.md",
+
+    "bugs": {
+        "url": "https://github.com/Daeren/Maybe/issues"
+    },
+
+    "_id": "maybe@0.0.1",
+    "_from": "maybe@"
+}

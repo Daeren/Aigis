@@ -1,0 +1,482 @@
+﻿//-----------------------------------------------------
+//
+// Author: Daeren Torn
+// Site: 666.io
+// Version: 0.00.001
+//
+//-----------------------------------------------------
+
+var $validate = (function createInstance() {
+    "use strict";
+
+    //-----------------------------------------------------
+
+    var gVPhones = {
+        "ru-RU":    /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/,
+        "zh-CN":    /^(\+?0?86\-?)?1[345789]\d{9}$/,
+        "en-ZA":    /^(\+?27|0)\d{9}$/,
+        "en-AU":    /^(\+?61|0)4\d{8}$/,
+        "en-HK":    /^(\+?852\-?)?[569]\d{3}\-?\d{4}$/,
+        "fr-FR":    /^(\+?33|0)[67]\d{8}$/,
+        "pt-PT":    /^(\+351)?9[1236]\d{7}$/,
+        "el-GR" :   /^(\+30)?((2\d{9})|(69\d{8}))$/
+    };
+
+    //-----------------------------]>
+
+    var gVMethods = {
+        "null": function(input) {
+            return input === null;
+        },
+
+        "nan": function(input) {
+            return typeof(input) === "number" && isNaN(input);
+        },
+
+        "finite": function(input) {
+            return typeof(input) === "number" && isFinite(input);
+        },
+
+        //-----------------------]>
+
+        "boolean": function(input) {
+            return typeof(input) === "boolean";
+        },
+
+        "string": function(input, options) {
+            if(typeof(input) !== "string")
+                return false;
+
+            options = options || {};
+
+            if(
+                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1) ||
+                (typeof(options.pattern) !== "undefined" && !options.pattern.test(input)) ||
+                (typeof(options.min) !== "undefined" && input.length < options.min) ||
+                (typeof(options.max) !== "undefined" && input.length > options.max)
+            )
+                return false;
+
+            return true;
+        },
+
+        "integer": function(input, options) {
+            if(typeof(input) !== "number" || isNaN(input))
+                return false;
+
+            options = options || {};
+
+            if(
+                (input !== parseInt(input, options.radix || 10)) ||
+                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1) ||
+                (typeof(options.min) !== "undefined" && input < options.min) ||
+                (typeof(options.max) !== "undefined" && input > options.max)
+            )
+                return false;
+
+            return true;
+        },
+
+        "float": function(input, options) {
+            if(typeof(input) !== "number" || isNaN(input))
+                return false;
+
+            options = options || {};
+
+            if(
+                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1) ||
+                (typeof(options.min) !== "undefined" && input < options.min) ||
+                (typeof(options.max) !== "undefined" && input > options.max)
+            )
+                return false;
+
+            return true;
+        },
+
+        "date": function(input) {
+            if(!input || input instanceof(Date) && !input.getTime())
+                return false;
+
+            return !isNaN(Date.parse(input));
+        },
+
+        "hashTable": function(input) {
+            if(Array.isArray(input) || !input)
+                return false;
+
+            if(typeof(input) === "object")
+                return true;
+
+            if(typeof(input) !== "string")
+                return false;
+
+            try {
+                input = JSON.parse(input);
+                return !!(input && typeof(input) === "object" && !Array.isArray(input));
+            } catch(e) {
+                return false;
+            }
+        },
+
+        "array": function(input, options) {
+            if(Array.isArray(input))
+                return true;
+
+            if(!input || typeof(input) !== "string")
+                return false;
+
+            try {
+                input = JSON.parse(input);
+
+                options = options || {};
+
+                if(
+                    (!Array.isArray(input)) ||
+                    (typeof(options.min) !== "undefined" && input.length < options.min) ||
+                    (typeof(options.max) !== "undefined" && input.length > options.max)
+                )
+                    return false;
+            } catch(e) {
+                return false;
+            }
+
+            return true;
+        },
+
+        "json": function(input) {
+            if(typeof(input) === "object")
+                return true;
+
+            try {
+                JSON.parse(input);
+            } catch(e) {
+                return false;
+            }
+
+            return true;
+        },
+
+        //-----------------------]>
+
+        "required": function(input) {
+            return !(
+            input === null || typeof(input) === "undefined" ||
+            (typeof(input) === "number" && input !== input) ||
+            (typeof(input) === "string" && !input.length) ||
+            (input instanceof(Date) && !input.getTime())
+            );
+        },
+
+        "notEmpty": function(input) {
+            if(typeof(input) === "string" && input.match(/^[\s\t\r\n]*$/))
+                return false;
+
+            return gVMethods.required(input);
+        },
+
+        "lowercase": function(input) {
+            return typeof(input) === "string" && input === input.toLowerCase()
+        },
+
+        "uppercase": function(input) {
+            return typeof(input) === "string" && input === input.toUpperCase()
+        },
+
+        //-----------------------]>
+
+        "alphanumeric": function(input) {
+            return typeof(input) === "string" && !!input.match(/^[a-zA-Z0-9]+$/);
+        },
+
+        "alpha": function(input) {
+            return typeof(input) === "string" && !!input.match(/^[a-zA-Z]+$/);
+        },
+
+        "numeric": function(input) {
+            return typeof(input) === "string" && !!input.match(/^[0-9]+$/);
+        },
+
+        "hexadecimal": function(input) {
+            return typeof(input) === "string" && !!input.match(/^[0-9a-fA-F]+$/);
+        },
+
+        "email": function(input) {
+            return typeof(input) == "string" && !!input.match(/^(?:[\w\!\#\$\%\&\"\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\"\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!\.)){0,61}[a-zA-Z0-9]?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!$)){0,61}[a-zA-Z0-9]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/);
+        },
+
+        "url": function(input) {
+            return typeof(input) === "string" && !!input.match(/^(?!mailto:)(?:(?:https?|ftp|ssh|ws|gopher|news|telnet|ldap):\/\/)?(?:\S+(?::\S*)?@)?(?:(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))|localhost)(?::\d{2,5})?(?:\/[^\s]*)?$/i);
+        },
+
+        "mongoId": function(input) {
+            return typeof(input) === "string" && !!input.match(/^[0-9a-fA-F]{24}$/);
+        },
+
+        //-----------------------]>
+
+        "hexColor": function(input, options) {
+            options = options || {};
+            return typeof(input) === "string" && !!input.match(options.strict ? /^#[0-9A-F]{6}$/i : /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i);
+        },
+
+        "creditcard": function(input) {
+            if(typeof(input) !== "string")
+                return false;
+
+            input = input.replace(/[^0-9]+/g, "");
+
+            if(!input || !input.match(/^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/))
+                return false;
+
+            var sum = 0, shouldDouble = false;
+            var digit, tmpNum;
+
+            for(var i = input.length - 1; i >= 0; i--) {
+                digit = input.substring(i, (i + 1));
+                tmpNum = parseInt(digit, 10);
+
+                if(shouldDouble) {
+                    tmpNum *= 2;
+                    sum += (tmpNum >= 10) ? ((tmpNum % 10) + 1) : tmpNum;
+                } else
+                    sum += tmpNum;
+
+                shouldDouble = !shouldDouble;
+            }
+
+            return (sum % 10) === 0;
+        },
+
+        "phone": function(input, options) {
+            if(!input || typeof(input) !== "string")
+                return false;
+
+            ///---)>
+
+            options = options || {};
+
+            var rgPhone = gVPhones[options.locale || "ru-RU"];
+
+            return rgPhone && rgPhone.test(input);
+        },
+
+        "uuid": function(input, options) {
+            if(!input || typeof(input) !== "string")
+                return false;
+
+            ///---)>
+
+            options = options || {};
+
+            var version = options.version,
+                pattern;
+
+            if(version == 3 || version == "v3")
+                pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-3[0-9A-F]{3}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
+            else if(version == 4 || version == "v4")
+                pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+            else if(version == 5 || version == "v5")
+                pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+            else
+                pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
+
+            return pattern.test(input);
+        },
+
+        "ip": function(input, options) {
+            if(!input || typeof(input) !== "string")
+                return false;
+
+            options = options || {};
+
+            ///---)>
+
+            var version = options.version;
+
+            function ipV4() {
+                if((/^(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)$/).test(input)) {
+                    var parts = input.split(".").sort();
+                    // no need to check for < 0 as regex won't match in that case
+                    return !(parts[3] > 255);
+                }
+            }
+
+            ///---)>
+
+            if(!version && !ipV4() && !(/^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/).test(input))
+                return false;
+
+            if(version == 4 && !ipV4())
+                return false;
+
+            if(version == 6 && !(/^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/).test(input))
+                return false;
+
+            return true;
+        },
+
+        "ascii": function(input) {
+            return typeof(input) === "string" && (/^[\x00-\x7F]+$/).test(input);
+        },
+
+        "base64": function(input) {
+            return typeof(input) === "string" && (/^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$/).test(input);
+        }
+    };
+
+    //-----------------------------]>
+
+    var result = {
+        "global": function(v) {
+            if(!typeof(global) == "object" || typeof(v) == "undefined" || typeof(global.$validate) != "undefined")
+                return this;
+
+            if(v) {
+                global.$validate = result.validate;
+            } else
+                delete global.$validate;
+
+            return this;
+        },
+
+        //--------]>
+
+        "validate": function(schema, data, options) {
+            if(!schema)
+                throw "[!] Validation | not found method: " + schema;
+
+            //----------------]>
+
+            if(Array.isArray(schema)) {
+                var args, nameFunc, func,
+                    i = arguments.length;
+
+                while(i--) {
+                    args = arguments[i];
+                    nameFunc = args[0];
+
+                    if(nameFunc[0] == "?") {
+                        if(typeof(args[1]) == "undefined")
+                            continue;
+
+                        nameFunc = nameFunc.substring(1);
+                    }
+
+                    func = gVMethods[nameFunc];
+
+                    if(!func)
+                        throw "[!] Validation | not found method: " + nameFunc;
+
+                    if(!func(args[1], args[2]))
+                        return false;
+                }
+
+                return true;
+            }
+
+            //-------]>
+
+            if(typeof(schema) === "string") {
+                if(schema[0] == "?") {
+                    if(typeof(data) == "undefined")
+                        return true;
+
+                    schema = schema.substring(1);
+                }
+
+
+                var func = gVMethods[schema];
+
+                if(!func)
+                    throw "[!] Validation | not found method: " + schema;
+
+                return func(data, options);
+            }
+
+            //-------]>
+
+            if(typeof(schema) === "object") {
+                if(!data || typeof(data) !== "object")
+                    return false;
+
+                //----------------)>
+
+                var optErrors = options && options.errors;
+                var result = optErrors ? null : true;
+
+                for(var field in schema) {
+                    if(!schema.hasOwnProperty(field)) continue;
+
+                    var nameFunc,
+                        schemaData = schema[field],
+                        fieldData = data[field];
+
+                    //-----------------)>
+
+                    if(typeof(schemaData) === "string") {
+                        nameFunc = schemaData;
+                    } else if(typeof(schemaData) === "object") {
+                        nameFunc = schemaData.use;
+                    }
+
+                    if(nameFunc[0] == "?") {
+                        if(typeof(fieldData) == "undefined")
+                            continue;
+
+                        nameFunc = nameFunc.substring(1);
+                    }
+
+                    //-----------------)>
+
+                    var func = gVMethods[nameFunc];
+
+                    if(!func)
+                        throw "[!] Validation | not found method: " + nameFunc;
+
+                    if(!func(fieldData, schemaData)) {
+                        if(optErrors) {
+                            result = result || [];
+                            result.push({
+                                "field":    field,
+                                "use":      nameFunc,
+
+                                "input":    fieldData
+                            });
+                        } else {
+                            result = false;
+                            break;
+                        }
+                    }
+
+
+
+                }
+
+                return result;
+            }
+
+            //----------------]>
+
+            throw "[!] Validation | not found method: " + schema;
+        }
+    };
+
+    {
+        var obj = result.validate;
+
+        for(var i in gVMethods) {
+            if(gVMethods.hasOwnProperty(i)) obj[i] = gVMethods[i];
+        }
+    }
+
+    return result;
+})();
+
+//-----------------------------------------------------
+
+if(typeof(module) == "object") {
+    module.exports = $validate;
+
+    if(typeof(global) == "object")
+        $validate.global(true);
+}
