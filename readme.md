@@ -47,10 +47,9 @@ $validate(schema, data);
 ```
 
 
-| Name        | Desc        | Params		|
+| Name        | Desc        | Params/Options		|
 |-------------|-------------|-------------|
 |               	| -           ||
-| -        			| ALL (if schema: HashTable)   		| use |
 | null    			| -  								| - |
 | nan    			| -  								| - |
 | finite    		| If number and not: NaN, INFINITY  								| - |
