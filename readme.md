@@ -1,8 +1,8 @@
-`npm install maybe -g`
+`npm install aigis -g`
 
 
 ```js
-require("maybe");
+require("aigis");
 
 var schema  = {
         "name":     "string",
@@ -88,7 +88,7 @@ $validate(schema, data);
 
 #### Browser
 
-Include: `//raw.githack.com/Daeren/Maybe/master/index.js`
+Include: `//raw.githack.com/Daeren/Aigis/master/index.js`
 
 Global var: `$validate`
 
@@ -96,7 +96,7 @@ Global var: `$validate`
 #### Examples
 
 ```js
-require("maybe");
+require("aigis");
 
 //-----------------------------------------------------
 

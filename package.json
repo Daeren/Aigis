@@ -1,5 +1,5 @@
 {
-    "name": "maybe",
+    "name": "aigis",
     "version": "0.0.1",
     "description": "Simple and Powerful module for strict validation",
 
@@ -20,7 +20,7 @@
     "main": "./index",
     "repository": {
         "type": "git",
-        "url": "git://github.com/Daeren/Maybe.git"
+        "url": "git://github.com/Daeren/Aigis.git"
     },
 
     "license": "MIT",
@@ -32,9 +32,9 @@
     "readmeFilename": "readme.md",
 
     "bugs": {
-        "url": "https://github.com/Daeren/Maybe/issues"
+        "url": "https://github.com/Daeren/Aigis/issues"
     },
 
-    "_id": "maybe@0.0.1",
-    "_from": "maybe@"
+    "_id": "aigis@0.0.1",
+    "_from": "aigis@"
 }
