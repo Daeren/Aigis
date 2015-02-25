@@ -14,15 +14,16 @@ require("../index");
 //-----------------------------------------------------
 
 console.log("+-------------------------+");
-console.log("| Function");
+console.log("| Custom");
 console.log("+-------------------------+");
 
-console.log(JSON.stringify({
-    "T0":   $validate.string(10),
-    "T1":   $validate.integer("10"),
-    "T2":   $validate.email("0d@root.pop"),
-    "T3":   $validate.email("0d-root.pop")
-}, null, "\t"));
+$validate.rule("testRuleMax10", function(input, options) {
+    return input < 10;
+});
+
+console.log("1#", $validate("testRuleMax10", 50));
+console.log("1#", $validate("testRuleMax10", 8));
+
 
 console.log("+-------------------------+");
 console.log("| String");

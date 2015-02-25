@@ -23,10 +23,11 @@ function test(exp, data) {
         args = Array.prototype.slice.call(arguments, 1);
 
     try {
-        rA.deepEqual($validate.apply(null, args), exp, args);
+        rA.deepEqual($validate.apply(null, args), exp);
     } catch(e) {
         result = false;
 
+        console.log(args);
         console.log(e);
         console.log("\n");
     }
@@ -99,24 +100,24 @@ console.log("|");
     test(true, "hashTable", {'x': 1});
     test(false, "hashTable", "{'x': 1");
     test(false, "hashTable", "[1,2]");
-    test(true, "hashTable", JSON.stringify({'x': 1}));
+    test(false, "hashTable", JSON.stringify({'x': 1}));
 
-    test(false, "array", "[1,2");
-    test(true, "array", "[1,2]");
     test(true, "array", [1,2]);
+    test(false, "array", "[1,2");
+    test(false, "array", "[1,2]");
     test(false, "array", {x:1});
     test(false, "array", "{'x': 1}");
 
-    test(false, "json", undefined);
     test(true, "json", null);
+    test(true, "json", {'x': 1});
+    test(true, "json", [1,2]);
+    test(false, "json", undefined);
     test(false, "json", NaN);
     test(false, "json", "{'x': 1");
     test(false, "json", "{'x': 1}");
-    test(true, "json", JSON.stringify({'x': 1}));
-    test(true, "json", "[1,2]");
+    test(false, "json", JSON.stringify({'x': 1}));
+    test(false, "json", "[1,2]");
     test(false, "json", "[1,2");
-    test(true, "hashTable", {'x': 1});
-    test(true, "array", [1,2]);
 
     test(false, "required", "");
     test(false, "required", new Date(NaN));

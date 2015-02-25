@@ -2,11 +2,11 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.001
+// Version: 0.00.002
 //
 //-----------------------------------------------------
 
-var $validate = (function createInstance() {
+var $aigis = (function createInstance() {
     "use strict";
 
     //-----------------------------------------------------
@@ -107,51 +107,27 @@ var $validate = (function createInstance() {
             if(typeof(input) === "object")
                 return true;
 
-            if(typeof(input) !== "string")
-                return false;
-
-            try {
-                input = JSON.parse(input);
-                return !!(input && typeof(input) === "object" && !Array.isArray(input));
-            } catch(e) {
-                return false;
-            }
+            return false;
         },
 
         "array": function(input, options) {
-            if(Array.isArray(input))
-                return true;
-
-            if(!input || typeof(input) !== "string")
+            if(!Array.isArray(input))
                 return false;
 
-            try {
-                input = JSON.parse(input);
+            options = options || {};
 
-                options = options || {};
-
-                if(
-                    (!Array.isArray(input)) ||
-                    (typeof(options.min) !== "undefined" && input.length < options.min) ||
-                    (typeof(options.max) !== "undefined" && input.length > options.max)
-                )
-                    return false;
-            } catch(e) {
+            if(
+                (typeof(options.min) !== "undefined" && input.length < options.min) ||
+                (typeof(options.max) !== "undefined" && input.length > options.max)
+            )
                 return false;
-            }
 
             return true;
         },
 
         "json": function(input) {
-            if(typeof(input) === "object")
-                return true;
-
-            try {
-                JSON.parse(input);
-            } catch(e) {
+            if(typeof(input) !== "object")
                 return false;
-            }
 
             return true;
         },
@@ -215,8 +191,12 @@ var $validate = (function createInstance() {
         //-----------------------]>
 
         "hexColor": function(input, options) {
+            if(typeof(input) !== "string")
+                return false;
+
             options = options || {};
-            return typeof(input) === "string" && !!input.match(options.strict ? /^#[0-9A-F]{6}$/i : /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i);
+
+            return !!input.match(options.strict ? /^#[0-9A-F]{6}$/i : /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i);
         },
 
         "creditcard": function(input) {
@@ -324,6 +304,15 @@ var $validate = (function createInstance() {
         }
     };
 
+    //-------[HELPERS]-------}>
+
+    function wFuncStore(name, func, store) {
+        if(func === null) delete store[name];
+        else if(typeof(func) == "function") store[name] = func;
+        else return store[name];
+    }
+
+
     //-----------------------------]>
 
     var result = {
@@ -332,11 +321,21 @@ var $validate = (function createInstance() {
                 return this;
 
             if(v) {
-                global.$validate = result.validate;
+                var gObj = result.validate;
+
+                for(var i in result) {
+                    if(result.hasOwnProperty(i)) gObj[i] = result[i];
+                }
+
+                global.$validate = gObj;
             } else
                 delete global.$validate;
 
             return this;
+        },
+
+        "rule": function(name, func) {
+            return wFuncStore(name, func, gVMethods);
         },
 
         //--------]>
@@ -461,22 +460,14 @@ var $validate = (function createInstance() {
         }
     };
 
-    {
-        var obj = result.validate;
-
-        for(var i in gVMethods) {
-            if(gVMethods.hasOwnProperty(i)) obj[i] = gVMethods[i];
-        }
-    }
-
     return result;
 })();
 
 //-----------------------------------------------------
 
 if(typeof(module) == "object") {
-    module.exports = $validate;
+    module.exports = $aigis;
 
     if(typeof(global) == "object")
-        $validate.global(true);
+        $aigis.global(true);
 }

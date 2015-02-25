@@ -11,7 +11,7 @@ var schema  = {
     },
     data    = {"name": "X", "pts": 32};
 
-$validate(schema, data);
+$aigis(schema, data);
 ```
 
 * Tests: +
@@ -25,7 +25,9 @@ $validate(schema, data);
 | Name        | Desc        | Args			|
 |-------------|-------------|-------------|
 |             | -           ||
-| global      | Set `$validate` as Global Var   		| (v [default: true]) 				|
+| global      | Set `$validate` as Global Var (NodeJS)  | (v [default: true]) 				|
+| rule        | Add/Remove/Get custom Rule  			| (name, [func]) ~ func(input, options) |
+|             | -           ||
 | validate    | -								   		| (schema (String/Array/HashTable), data, [options]) 		|
 
 
@@ -91,7 +93,7 @@ $validate(schema, data);
 
 Include: `//raw.githack.com/Daeren/Aigis/master/index.js`
 
-Global var: `$validate`
+Global var: `$aigis`
 
 
 #### Examples
@@ -102,15 +104,16 @@ require("aigis");
 //-----------------------------------------------------
 
 console.log("+-------------------------+");
-console.log("| Function");
+console.log("| Custom");
 console.log("+-------------------------+");
 
-console.log(JSON.stringify({
-    "T0":   $validate.string(10),
-    "T1":   $validate.integer("10"),
-    "T2":   $validate.email("0d@root.pop"),
-    "T3":   $validate.email("0d-root.pop")
-}, null, "\t"));
+$validate.rule("testRuleMax10", function(input, options) {
+    return input < 10;
+});
+
+console.log("1#", $validate("testRuleMax10", 50));
+console.log("1#", $validate("testRuleMax10", 8));
+
 
 console.log("+-------------------------+");
 console.log("| String");
