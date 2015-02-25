@@ -18,9 +18,9 @@ $validate(schema, data);
 * Examples: +
 * Browser: +
 
-`?name` - Check an input only when the input exists (not `undefined`).
+`?name` - Check an input only when the input exists (not undefined).
 
-#### Module (NodeJS)
+#### Module
 
 | Name        | Desc        | Args			|
 |-------------|-------------|-------------|
@@ -29,12 +29,14 @@ $validate(schema, data);
 | validate    | -								   		| (schema (String/Array/HashTable), data, [options]) 		|
 
 
+
 #### Validate
 
 | Options     | Desc        | Val 			|
 |-------------|-------------|-------------|
 |             | -           ||
 | errors     | Validate method returns null or an array of errors   		|  true/false (def: false)|
+
 
 ```js
 //_ Error: structure 
