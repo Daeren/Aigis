@@ -40,9 +40,9 @@ $validate(schema, data);
 |-------------|-------------|-------------|
 |             | -           ||
 | boolean    		| true: "true", "on", "yes", "1"  	| - |
-| string    		| -  								| length, trim |
-| integer    		| -  								| min, max, enum |
-| float    			| -  								| min, max, enum |
+| string    		| -  								| default, length, trim |
+| integer    		| -  								| default, min, max, enum |
+| float    			| -  								| default, min, max, enum |
 | date    			| -  								| - |
 | hashTable    		| -  								| - |
 | array    			| -  								| max |

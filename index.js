@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.003
+// Version: 0.00.004
 //
 //-----------------------------------------------------
 
@@ -393,6 +393,13 @@ var $aigis = (function createInstance() {
     function postNormilize(type, input, options) {
         switch(type) {
             case "string":
+                if(!input) {
+                    if(typeof(options.default) === "string")
+                        input = options.default;
+
+                    break;
+                }
+
                 if(options.trim)
                     input = input.trim();
 
@@ -402,6 +409,13 @@ var $aigis = (function createInstance() {
                 break;
 
             case "integer":
+                if(isNaN(input)) {
+                    if(typeof(options.default) === "number")
+                        input = parseInt(options.default, 10);
+
+                    break;
+                }
+
                 if(typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                     return NaN;
 
@@ -414,6 +428,13 @@ var $aigis = (function createInstance() {
                 break;
 
             case "float":
+                if(isNaN(input)) {
+                    if(typeof(options.default) === "number")
+                        input = options.default;
+
+                    break;
+                }
+
                 if(typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                     return NaN;
 

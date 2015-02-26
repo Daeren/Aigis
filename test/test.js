@@ -66,7 +66,8 @@ function testS(exp, data) {
         console.log("\n");
     }
 
-    console.log("|%s|> T%s ", result ? "+" : "-", count.s);
+    if(!result)
+        console.log("|%s|> T%s ", result ? "+" : "-", count.s);
 }
 
 function testV(exp, data) {
@@ -85,7 +86,8 @@ function testV(exp, data) {
         console.log("\n");
     }
 
-    console.log("|%s|> T%s ", result ? "+" : "-", count.v);
+    if(!result)
+        console.log("|%s|> T%s ", result ? "+" : "-", count.v);
 }
 
 //-------------------------]>
@@ -99,6 +101,9 @@ console.log("| Sanitize");
         dateNow = Date.now(),
         regex = /\s+/g;
 
+    testS(false, "boolean", undefined);
+    testS(false, "boolean", null);
+    testS(false, "boolean",  NaN);
     testS(true, "boolean", true);
     testS(false, "boolean", false);
     testS(true, "boolean", "true");
@@ -108,21 +113,33 @@ console.log("| Sanitize");
     testS(true, "boolean", "yes");
     testS(true, "boolean", "1");
 
+    testS("", "string", undefined);
+    testS("", "string", null);
+    testS("NaN", "string",  NaN);
     testS("10", "string", 10);
     testS("10", "string", "10");
     testS(date.toString(), "string", date);
     testS(regex.toString(), "string", regex);
 
+    testS(NaN, "integer", undefined);
+    testS(NaN, "integer", null);
+    testS(NaN, "integer",  NaN);
     testS(10, "integer", 10);
     testS(10, "integer", 10.5);
     testS(10, "integer", "10");
     testS(NaN, "integer", "");
 
+    testS(NaN, "float", undefined);
+    testS(NaN, "float", null);
+    testS(NaN, "float",  NaN);
     testS(10, "float", 10);
     testS(10.5, "float", 10.5);
     testS(10, "float", "10");
     testS(NaN, "float", "");
 
+    testS(new Date(NaN), "date", undefined);
+    testS(new Date(NaN), "date", null);
+    testS(new Date(NaN), "date",  NaN);
     testS(new Date(10), "date", 10);
     testS(new Date(NaN), "date", new Date(NaN));
     testS(date, "date", date);
@@ -132,17 +149,26 @@ console.log("| Sanitize");
     testS(new Date(""), "date", "");
     testS(new Date("Thu, 01 Jan 1970 00:00:00 GMT-0400"), "date", "Thu, 01 Jan 1970 00:00:00 GMT-0400");
 
+    testS({}, "hashTable", undefined);
+    testS({}, "hashTable", null);
+    testS({}, "hashTable",  NaN);
     testS({'x': 1}, "hashTable", {'x': 1});
     testS({}, "hashTable", "{'x': 1");
     testS({}, "hashTable", "[1,2]");
     testS({'x': 1}, "hashTable", JSON.stringify({'x': 1}));
 
+    testS([], "array", undefined);
+    testS([], "array", null);
+    testS([], "array",  NaN);
     testS([1,2], "array", [1,2]);
     testS([], "array", "[1,2");
     testS([1,2], "array", "[1,2]");
     testS([], "array", {x:1});
     testS([], "array", "{'x': 1}");
 
+    testS(null, "json", undefined);
+    testS(null, "json", null);
+    testS(null, "json",  NaN);
     testS(null, "json", null);
     testS({'x': 1}, "json", {'x': 1});
     testS([1,2], "json", [1,2]);
