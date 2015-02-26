@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.005
+// Version: 0.00.006
 //
 //-----------------------------------------------------
 
@@ -10,6 +10,9 @@ var $aigis = (function createInstance() {
     "use strict";
 
     //-----------------------------------------------------
+
+    var customTypesStore        = {},
+        customRulesStore        = {};
 
     var gVPhones = {
         "ru-RU":    /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/,
@@ -24,269 +27,248 @@ var $aigis = (function createInstance() {
 
     //-----------------------------]>
 
-    var gVMethods = {
-        "null": function(input) {
-            return input === null;
-        },
+    function validation(use, input, options) {
+        switch(use) {
+            case "null":
+                return input === null;
 
-        "nan": function(input) {
-            return typeof(input) === "number" && isNaN(input);
-        },
+            case "nan":
+                return typeof(input) === "number" && isNaN(input);
 
-        "finite": function(input) {
-            return typeof(input) === "number" && isFinite(input);
-        },
+            case "finite":
+                return typeof(input) === "number" && isFinite(input);
 
-        //-----------------------]>
+            //-----------------------]>
 
-        "boolean": function(input) {
-            return typeof(input) === "boolean";
-        },
+            case "boolean":
+                return typeof(input) === "boolean";
 
-        "string": function(input, options) {
-            if(typeof(input) !== "string")
-                return false;
+            case "string":
+                if(typeof(input) !== "string")
+                    return false;
 
-            if(
-                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
-                (typeof(options.pattern) !== "undefined" && !options.pattern.test(input)) ||
-                (typeof(options.min) !== "undefined" && input.length < options.min) ||
-                (typeof(options.max) !== "undefined" && input.length > options.max)
-            )
-                return false;
+                if(
+                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
+                    (typeof(options.pattern) !== "undefined" && !options.pattern.test(input)) ||
+                    (typeof(options.min) !== "undefined" && input.length < options.min) ||
+                    (typeof(options.max) !== "undefined" && input.length > options.max)
+                )
+                    return false;
 
-            return true;
-        },
-
-        "integer": function(input, options) {
-            if(typeof(input) !== "number" || isNaN(input))
-                return false;
-
-            if(
-                (input !== parseInt(input, 10)) ||
-                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
-                (typeof(options.min) !== "undefined" && input < options.min) ||
-                (typeof(options.max) !== "undefined" && input > options.max)
-            )
-                return false;
-
-            return true;
-        },
-
-        "float": function(input, options) {
-            if(typeof(input) !== "number" || isNaN(input))
-                return false;
-
-            if(
-                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
-                (typeof(options.min) !== "undefined" && input < options.min) ||
-                (typeof(options.max) !== "undefined" && input > options.max)
-            )
-                return false;
-
-            return true;
-        },
-
-        "date": function(input) {
-            if(!input || !(input instanceof(Date)) || !input.getTime())
-                return false;
-
-            return true;
-        },
-
-        "hashTable": function(input) {
-            if(Array.isArray(input) || !input)
-                return false;
-
-            if(typeof(input) === "object")
                 return true;
 
-            return false;
-        },
+            case "integer":
+                if(typeof(input) !== "number" || isNaN(input))
+                    return false;
 
-        "array": function(input, options) {
-            if(!Array.isArray(input))
+                if(
+                    (input !== parseInt(input, 10)) ||
+                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
+                    (typeof(options.min) !== "undefined" && input < options.min) ||
+                    (typeof(options.max) !== "undefined" && input > options.max)
+                )
+                    return false;
+
+                return true;
+
+            case "float":
+                if(typeof(input) !== "number" || isNaN(input))
+                    return false;
+
+                if(
+                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
+                    (typeof(options.min) !== "undefined" && input < options.min) ||
+                    (typeof(options.max) !== "undefined" && input > options.max)
+                )
+                    return false;
+
+                return true;
+
+            case "date":
+                if(!input || !(input instanceof(Date)) || !input.getTime())
+                    return false;
+
+                return true;
+
+            case "hashTable":
+                if(Array.isArray(input) || !input)
+                    return false;
+
+                if(typeof(input) === "object")
+                    return true;
+
                 return false;
 
-            if(
-                (typeof(options.min) !== "undefined" && input.length < options.min) ||
-                (typeof(options.max) !== "undefined" && input.length > options.max)
-            )
-                return false;
+            case "array":
+                if(!Array.isArray(input))
+                    return false;
 
-            return true;
-        },
+                if(
+                    (typeof(options.min) !== "undefined" && input.length < options.min) ||
+                    (typeof(options.max) !== "undefined" && input.length > options.max)
+                )
+                    return false;
 
-        "json": function(input) {
-            if(typeof(input) !== "object")
-                return false;
+                return true;
 
-            return true;
-        },
+            case "json":
+                if(typeof(input) !== "object")
+                    return false;
 
-        //-----------------------]>
+                return true;
 
-        "required": function(input) {
-            return !(
-            input === null || typeof(input) === "undefined" ||
-            (typeof(input) === "number" && input !== input) ||
-            (typeof(input) === "string" && !input.length) ||
-            (input instanceof(Date) && !input.getTime())
-            );
-        },
+            //-----------------------]>
 
-        "notEmpty": function(input) {
-            if(typeof(input) === "string" && input.match(/^[\s\t\r\n]*$/))
-                return false;
+            case "required":
+                return !(
+                    input === null || typeof(input) === "undefined" ||
+                    (typeof(input) === "number" && input !== input) ||
+                    (typeof(input) === "string" && !input.length) ||
+                    (input instanceof(Date) && !input.getTime())
+                );
 
-            return gVMethods.required(input);
-        },
+            case "notEmpty":
+                return typeof(input) === "string" && !input.match(/^[\s\t\r\n]*$/);
 
-        "lowercase": function(input) {
-            return typeof(input) === "string" && input === input.toLowerCase()
-        },
+            case "lowercase":
+                return typeof(input) === "string" && input === input.toLowerCase()
 
-        "uppercase": function(input) {
-            return typeof(input) === "string" && input === input.toUpperCase()
-        },
+            case "uppercase":
+                return typeof(input) === "string" && input === input.toUpperCase()
 
-        //-----------------------]>
+            //-----------------------]>
 
-        "alphanumeric": function(input) {
-            return typeof(input) === "string" && !!input.match(/^[a-zA-Z0-9]+$/);
-        },
+            case "alphanumeric":
+                return typeof(input) === "string" && !!input.match(/^[a-zA-Z0-9]+$/);
 
-        "alpha": function(input) {
-            return typeof(input) === "string" && !!input.match(/^[a-zA-Z]+$/);
-        },
+            case "alpha":
+                return typeof(input) === "string" && !!input.match(/^[a-zA-Z]+$/);
 
-        "numeric": function(input) {
-            return typeof(input) === "string" && !!input.match(/^[0-9]+$/);
-        },
+            case "numeric":
+                return typeof(input) === "string" && !!input.match(/^[0-9]+$/);
 
-        "hexadecimal": function(input) {
-            return typeof(input) === "string" && !!input.match(/^[0-9a-fA-F]+$/);
-        },
+            case "hexadecimal":
+                return typeof(input) === "string" && !!input.match(/^[0-9a-fA-F]+$/);
 
-        "email": function(input) {
-            return typeof(input) == "string" && !!input.match(/^(?:[\w\!\#\$\%\&\"\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\"\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!\.)){0,61}[a-zA-Z0-9]?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!$)){0,61}[a-zA-Z0-9]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/);
-        },
+            case "email":
+                return typeof(input) == "string" && !!input.match(/^(?:[\w\!\#\$\%\&\"\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\"\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!\.)){0,61}[a-zA-Z0-9]?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!$)){0,61}[a-zA-Z0-9]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/);
 
-        "url": function(input) {
-            return typeof(input) === "string" && !!input.match(/^(?!mailto:)(?:(?:https?|ftp|ssh|ws|gopher|news|telnet|ldap):\/\/)?(?:\S+(?::\S*)?@)?(?:(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))|localhost)(?::\d{2,5})?(?:\/[^\s]*)?$/i);
-        },
+            case "url":
+                return typeof(input) === "string" && !!input.match(/^(?!mailto:)(?:(?:https?|ftp|ssh|ws|gopher|news|telnet|ldap):\/\/)?(?:\S+(?::\S*)?@)?(?:(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))|localhost)(?::\d{2,5})?(?:\/[^\s]*)?$/i);
 
-        "mongoId": function(input) {
-            return typeof(input) === "string" && !!input.match(/^[0-9a-fA-F]{24}$/);
-        },
+            case "mongoId":
+                return typeof(input) === "string" && !!input.match(/^[0-9a-fA-F]{24}$/);
 
-        //-----------------------]>
+            //-----------------------]>
 
-        "hexColor": function(input, options) {
-            if(typeof(input) !== "string")
-                return false;
+            case "hexColor":
+                if(typeof(input) !== "string")
+                    return false;
 
-            return !!input.match(options.strict ? /^#[0-9A-F]{6}$/i : /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i);
-        },
+                return !!input.match(options.strict ? /^#[0-9A-F]{6}$/i : /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i);
 
-        "creditcard": function(input) {
-            if(typeof(input) !== "string")
-                return false;
+            case "creditcard":
+                if(typeof(input) !== "string")
+                    return false;
 
-            input = input.replace(/[^0-9]+/g, "");
+                input = input.replace(/[^0-9]+/g, "");
 
-            if(!input || !input.match(/^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/))
-                return false;
+                if(!input || !input.match(/^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/))
+                    return false;
 
-            var sum = 0, shouldDouble = false;
-            var digit, tmpNum;
+                var sum = 0, shouldDouble = false;
+                var digit, tmpNum;
 
-            for(var i = input.length - 1; i >= 0; i--) {
-                digit = input.substring(i, (i + 1));
-                tmpNum = parseInt(digit, 10);
+                for(var i = input.length - 1; i >= 0; i--) {
+                    digit = input.substring(i, (i + 1));
+                    tmpNum = parseInt(digit, 10);
 
-                if(shouldDouble) {
-                    tmpNum *= 2;
-                    sum += (tmpNum >= 10) ? ((tmpNum % 10) + 1) : tmpNum;
-                } else
-                    sum += tmpNum;
+                    if(shouldDouble) {
+                        tmpNum *= 2;
+                        sum += (tmpNum >= 10) ? ((tmpNum % 10) + 1) : tmpNum;
+                    } else
+                        sum += tmpNum;
 
-                shouldDouble = !shouldDouble;
-            }
-
-            return (sum % 10) === 0;
-        },
-
-        "phone": function(input, options) {
-            if(!input || typeof(input) !== "string")
-                return false;
-
-            ///---)>
-
-            var rgPhone = gVPhones[options.locale || "ru-RU"];
-
-            return rgPhone && rgPhone.test(input);
-        },
-
-        "uuid": function(input, options) {
-            if(!input || typeof(input) !== "string")
-                return false;
-
-            ///---)>
-
-            var version = options.version,
-                pattern;
-
-            if(version == 3 || version == "v3")
-                pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-3[0-9A-F]{3}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
-            else if(version == 4 || version == "v4")
-                pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
-            else if(version == 5 || version == "v5")
-                pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
-            else
-                pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
-
-            return pattern.test(input);
-        },
-
-        "ip": function(input, options) {
-            if(!input || typeof(input) !== "string")
-                return false;
-
-            ///---)>
-
-            var version = options.version;
-
-            function ipV4() {
-                if((/^(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)$/).test(input)) {
-                    var parts = input.split(".").sort();
-                    // no need to check for < 0 as regex won't match in that case
-                    return !(parts[3] > 255);
+                    shouldDouble = !shouldDouble;
                 }
-            }
 
-            ///---)>
+                return (sum % 10) === 0;
 
-            if(!version && !ipV4() && !(/^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/).test(input))
-                return false;
+            case "phone":
+                if(!input || typeof(input) !== "string")
+                    return false;
 
-            if(version == 4 && !ipV4())
-                return false;
+                ///---)>
 
-            if(version == 6 && !(/^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/).test(input))
-                return false;
+                var rgPhone = gVPhones[options.locale || "ru-RU"];
 
-            return true;
-        },
+                return rgPhone && rgPhone.test(input);
 
-        "ascii": function(input) {
-            return typeof(input) === "string" && (/^[\x00-\x7F]+$/).test(input);
-        },
+            case "uuid":
+                if(!input || typeof(input) !== "string")
+                    return false;
 
-        "base64": function(input) {
-            return typeof(input) === "string" && (/^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$/).test(input);
+                ///---)>
+
+                var version = options.version,
+                    pattern;
+
+                if(version == 3 || version == "v3")
+                    pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-3[0-9A-F]{3}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
+                else if(version == 4 || version == "v4")
+                    pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+                else if(version == 5 || version == "v5")
+                    pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+                else
+                    pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
+
+                return pattern.test(input);
+
+            case "ip":
+                if(!input || typeof(input) !== "string")
+                    return false;
+
+                ///---)>
+
+                var version = options.version,
+                    ipV4 = function() {
+                        if((/^(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)$/).test(input)) {
+                            var parts = input.split(".").sort();
+                            // no need to check for < 0 as regex won't match in that case
+                            return !(parts[3] > 255);
+                        }
+                    };
+
+                ///---)>
+
+                if(!version && !ipV4() && !(/^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/).test(input))
+                    return false;
+
+                if(version == 4 && !ipV4())
+                    return false;
+
+                if(version == 6 && !(/^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/).test(input))
+                    return false;
+
+                return true;
+
+            case "ascii":
+                return typeof(input) === "string" && (/^[\x00-\x7F]+$/).test(input);
+
+            case "base64":
+                return typeof(input) === "string" && (/^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$/).test(input);
+
+            //------------------------]>
+
+            default:
+                var func = customRulesStore[use];
+
+                if(func)
+                    return func(input, options);
+
+                throw "[!] Validation | Unknown method.\n" + use + " : " + JSON.stringify(options);
         }
-    };
+    }
 
     //-----------------------------]>
 
@@ -386,7 +368,12 @@ var $aigis = (function createInstance() {
             //------------------------]>
 
             default:
-                throw "[!] Sanitizer | Unknown Type.\n" + type + " : " + JSON.stringify(options);
+                var func = customTypesStore[type];
+
+                if(func)
+                    return func(input, options);
+
+                throw "[!] Sanitizer | Unknown type.\n" + type + " : " + JSON.stringify(options);
         }
     }
 
@@ -490,8 +477,12 @@ var $aigis = (function createInstance() {
             return this;
         },
 
+        "type": function(name, func) {
+            return wFuncStore(name, func, customTypesStore);
+        },
+
         "rule": function(name, func) {
-            return wFuncStore(name, func, gVMethods);
+            return wFuncStore(name, func, customRulesStore);
         },
 
         //--------]>
@@ -575,12 +566,7 @@ var $aigis = (function createInstance() {
                     schema = schema.substring(1);
                 }
 
-                var func = gVMethods[schema];
-
-                if(!func)
-                    throw "[!] Validation | not found method: " + schema;
-
-                return func(data, options);
+                return validation(schema, data, options);
             }
 
             //-------]>
@@ -619,12 +605,7 @@ var $aigis = (function createInstance() {
 
                     //-----------------)>
 
-                    var func = gVMethods[nameFunc];
-
-                    if(!func)
-                        throw "[!] Validation | not found method: " + nameFunc;
-
-                    if(!func(fieldData, schemaData)) {
+                    if(!validation(nameFunc, fieldData, schemaData)) {
                         if(optErrors) {
                             result = result || [];
                             result.push({
@@ -638,9 +619,6 @@ var $aigis = (function createInstance() {
                             break;
                         }
                     }
-
-
-
                 }
 
                 return result;
