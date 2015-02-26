@@ -5,11 +5,11 @@
 require("aigis");
 
 var schema  = {
-        "name":     "string",
+        "name":     {"use": "string", "length": 2, "trim": true},
         "status":   "?string",
         "pts":      {"use": "integer", "max": 30}
     },
-    data    = {"name": "X", "pts": "60"};
+    data    = {"name": "  XX+ ", "pts": "60", "delThisField": "data"};
 
 $sanitize(schema, data);
 $validate(schema, data);
