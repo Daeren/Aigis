@@ -29,8 +29,8 @@ $validate(schema, data);
 | global      | Set `$sanitize, $validate` as Global Var (NodeJS)  	| (v [default: true]) 				|
 | rule        | Add/Remove/Get custom Rule  						| (name, [func]) ~ func(input, options) |
 |             | -           ||			
-| sanitize    | -								   					| (schema (String/Array/HashTable), data, [options]) 		|
-| validate    | -								   					| (schema (String/Array/HashTable), data, [options]) 		|
+| sanitize    | -								   					| (schema (String/HashTable), data, [options]) 		|
+| validate    | -								   					| (schema (String/HashTable), data, [options]) 		|
 
 
 
@@ -122,7 +122,33 @@ require("aigis");
 //-----------------------------------------------------
 
 console.log("+-------------------------+");
-console.log("| Custom");
+console.log("| S: String");
+console.log("+-------------------------+");
+
+console.log(JSON.stringify({
+    "T0":   $sanitize("string", 10),
+    "T1":   $sanitize("integer", "80", {"max": 50}),
+    "T2":   $sanitize("array", "[1,2,3]", {"max": 2})
+}, null, "\t"));
+
+
+console.log("+-------------------------+");
+console.log("| S: HashTable");
+console.log("+-------------------------+");
+
+var schema  = {
+        "name":     {"use": "string", "length": 2, "trim": true},
+        "status":   "?string",
+        "pts":      {"use": "integer", "max": 30}
+    },
+    data    = {"name": "   DT+  ", "pts": "60"};
+
+console.log("1#", $sanitize(schema, data));
+
+
+
+console.log("+-------------------------+");
+console.log("| V: Custom");
 console.log("+-------------------------+");
 
 $validate.rule("testRuleMax10", function(input, options) {
@@ -134,7 +160,7 @@ console.log("1#", $validate("testRuleMax10", 8));
 
 
 console.log("+-------------------------+");
-console.log("| String");
+console.log("| V: String");
 console.log("+-------------------------+");
 
 console.log(JSON.stringify({
@@ -145,22 +171,8 @@ console.log(JSON.stringify({
     "T4":   $validate("?email", undefined)
 }, null, "\t"));
 
-
 console.log("+-------------------------+");
-console.log("| Array");
-console.log("+-------------------------+");
-
-console.log(JSON.stringify({
-    "T0":   $validate(["integer", 10], ["email", "0d@root.pop"]),
-    "T1":   $validate(["string", 10], ["email", "0d@root.pop"]),
-    "T2":   $validate(["string", 10], ["email", "0d-root.pop"]),
-    "T3":   $validate(["?string", undefined], ["email", "0d@root.pop"]),
-    "T4":   $validate(["?string", undefined], ["email", "0d-root.pop"])
-}, null, "\t"));
-
-
-console.log("+-------------------------+");
-console.log("| HashTable");
+console.log("| V: HashTable");
 console.log("+-------------------------+");
 
 var schema  = {"name": "string", "status": "?string", "pts": "integer"},

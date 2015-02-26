@@ -546,35 +546,6 @@ var $aigis = (function createInstance() {
 
             //----------------]>
 
-            if(Array.isArray(schema)) {
-                var args, nameFunc, func,
-                    i = arguments.length;
-
-                while(i--) {
-                    args = arguments[i];
-                    nameFunc = args[0];
-
-                    if(nameFunc[0] == "?") {
-                        if(typeof(args[1]) == "undefined")
-                            continue;
-
-                        nameFunc = nameFunc.substring(1);
-                    }
-
-                    func = gVMethods[nameFunc];
-
-                    if(!func)
-                        throw "[!] Validation | not found method: " + nameFunc;
-
-                    if(!func(args[1], args[2] || {}))
-                        return false;
-                }
-
-                return true;
-            }
-
-            //-------]>
-
             if(typeof(schema) === "string") {
                 if(schema[0] == "?") {
                     if(typeof(data) == "undefined")

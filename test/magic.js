@@ -63,20 +63,6 @@ console.log(JSON.stringify({
     "T4":   $validate("?email", undefined)
 }, null, "\t"));
 
-
-console.log("+-------------------------+");
-console.log("| V: Array");
-console.log("+-------------------------+");
-
-console.log(JSON.stringify({
-    "T0":   $validate(["integer", 10], ["email", "0d@root.pop"]),
-    "T1":   $validate(["string", 10], ["email", "0d@root.pop"]),
-    "T2":   $validate(["string", 10], ["email", "0d-root.pop"]),
-    "T3":   $validate(["?string", undefined], ["email", "0d@root.pop"]),
-    "T4":   $validate(["?string", undefined], ["email", "0d-root.pop"])
-}, null, "\t"));
-
-
 console.log("+-------------------------+");
 console.log("| V: HashTable");
 console.log("+-------------------------+");
