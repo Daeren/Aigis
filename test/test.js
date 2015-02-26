@@ -88,14 +88,14 @@ console.log("|");
     test(false, "float", "10");
     test(false, "float", "");
 
-    test(true, "date", 10);
+    test(false, "date", 10);
     test(false, "date", new Date(NaN));
     test(true, "date", new Date());
     test(false, "date", Date.now());
     test(false, "date", "23/25/2014");
     test(false, "date", "2014-25-23");
     test(false, "date", "");
-    test(true, "date", "Thu, 01 Jan 1970 00:00:00 GMT-0400");
+    test(false, "date", "Thu, 01 Jan 1970 00:00:00 GMT-0400");
 
     test(true, "hashTable", {'x': 1});
     test(false, "hashTable", "{'x': 1");

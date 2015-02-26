@@ -7,11 +7,12 @@ require("aigis");
 var schema  = {
         "name":     "string",
         "status":   "?string",
-        "pts":      {"use": "integer", "max": 60}
+        "pts":      {"use": "integer", "max": 30}
     },
-    data    = {"name": "X", "pts": 32};
+    data    = {"name": "X", "pts": "60"};
 
-$aigis(schema, data);
+$sanitize(schema, data);
+$validate(schema, data);
 ```
 
 * Tests: +
@@ -25,10 +26,27 @@ $aigis(schema, data);
 | Name        | Desc        | Args			|
 |-------------|-------------|-------------|
 |             | -           ||
-| global      | Set `$validate` as Global Var (NodeJS)  | (v [default: true]) 				|
-| rule        | Add/Remove/Get custom Rule  			| (name, [func]) ~ func(input, options) |
+| global      | Set `$sanitize, $validate` as Global Var (NodeJS)  	| (v [default: true]) 				|
+| rule        | Add/Remove/Get custom Rule  						| (name, [func]) ~ func(input, options) |
+|             | -           ||			
+| sanitize    | -								   					| (schema (String/Array/HashTable), data, [options]) 		|
+| validate    | -								   					| (schema (String/Array/HashTable), data, [options]) 		|
+
+
+
+#### Sanitize
+
+| Name     	| Desc        | Val 			|
+|-------------|-------------|-------------|
 |             | -           ||
-| validate    | -								   		| (schema (String/Array/HashTable), data, [options]) 		|
+| boolean    		| true: "true", "on", "yes", "1"  	| - |
+| string    		| -  								| - |
+| integer    		| -  								| min, max, enum |
+| float    			| -  								| min, max, enum |
+| date    			| -  								| - |
+| hashTable    		| -  								| - |
+| array    			| -  								| - |
+| json    			| -  								| - |
 
 
 
@@ -60,7 +78,7 @@ $aigis(schema, data);
 |               	| -           ||
 | boolean    		| -  								| - |
 | string    		| -  								| min, max, enum, pattern |
-| integer    		| -  								| min, max, enum, radix |
+| integer    		| -  								| min, max, enum |
 | float    			| -  								| min, max, enum |
 | date    			| -  								| - |
 | hashTable    		| -  								| - |

@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.002
+// Version: 0.00.003
 //
 //-----------------------------------------------------
 
@@ -47,8 +47,6 @@ var $aigis = (function createInstance() {
             if(typeof(input) !== "string")
                 return false;
 
-            options = options || {};
-
             if(
                 (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1) ||
                 (typeof(options.pattern) !== "undefined" && !options.pattern.test(input)) ||
@@ -64,10 +62,8 @@ var $aigis = (function createInstance() {
             if(typeof(input) !== "number" || isNaN(input))
                 return false;
 
-            options = options || {};
-
             if(
-                (input !== parseInt(input, options.radix || 10)) ||
+                (input !== parseInt(input, 10)) ||
                 (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1) ||
                 (typeof(options.min) !== "undefined" && input < options.min) ||
                 (typeof(options.max) !== "undefined" && input > options.max)
@@ -81,8 +77,6 @@ var $aigis = (function createInstance() {
             if(typeof(input) !== "number" || isNaN(input))
                 return false;
 
-            options = options || {};
-
             if(
                 (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1) ||
                 (typeof(options.min) !== "undefined" && input < options.min) ||
@@ -94,10 +88,10 @@ var $aigis = (function createInstance() {
         },
 
         "date": function(input) {
-            if(!input || input instanceof(Date) && !input.getTime())
+            if(!input || !(input instanceof(Date)) || !input.getTime())
                 return false;
 
-            return !isNaN(Date.parse(input));
+            return true;
         },
 
         "hashTable": function(input) {
@@ -113,8 +107,6 @@ var $aigis = (function createInstance() {
         "array": function(input, options) {
             if(!Array.isArray(input))
                 return false;
-
-            options = options || {};
 
             if(
                 (typeof(options.min) !== "undefined" && input.length < options.min) ||
@@ -194,8 +186,6 @@ var $aigis = (function createInstance() {
             if(typeof(input) !== "string")
                 return false;
 
-            options = options || {};
-
             return !!input.match(options.strict ? /^#[0-9A-F]{6}$/i : /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i);
         },
 
@@ -233,8 +223,6 @@ var $aigis = (function createInstance() {
 
             ///---)>
 
-            options = options || {};
-
             var rgPhone = gVPhones[options.locale || "ru-RU"];
 
             return rgPhone && rgPhone.test(input);
@@ -245,8 +233,6 @@ var $aigis = (function createInstance() {
                 return false;
 
             ///---)>
-
-            options = options || {};
 
             var version = options.version,
                 pattern;
@@ -266,8 +252,6 @@ var $aigis = (function createInstance() {
         "ip": function(input, options) {
             if(!input || typeof(input) !== "string")
                 return false;
-
-            options = options || {};
 
             ///---)>
 
@@ -304,6 +288,125 @@ var $aigis = (function createInstance() {
         }
     };
 
+    //-----------------------------]>
+
+    function normalize(type, input, options) {
+        if(type === "custom")
+            return input;
+
+        //------------------]>
+
+        switch(type) {
+            case "boolean":
+                if(typeof(input) === "boolean")
+                    return input;
+
+                if(typeof(input) === "string")
+                    return input === "true" || input === "on" || input === "yes" || input === "1";
+
+                return false;
+
+            case "string":
+                if(typeof(input) === "string")
+                    return input;
+
+                if(input === null || typeof(input) === "undefined")
+                    return "";
+
+                if(typeof(input.toString) === "function")
+                    return inputv.toString();
+
+                if(typeof(input) === "object")
+                    return Object.prototype.toString.call(input);
+
+                return input + "";
+
+            case "integer":
+                input = parseInt(input, options.radix || 10);
+
+                if(typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1)
+                    return NaN;
+
+                if(typeof(options.min) !== "undefined" && input < options.min)
+                    return parseInt(options.min, 10);
+
+                if(typeof(options.max) !== "undefined" && input > options.max)
+                    return parseInt(options.max, 10);
+
+                return input;
+
+            case "float":
+                if(typeof(input) !== "number")
+                    input = parseFloat(input);
+
+                if(typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1)
+                    return NaN;
+
+                if(typeof(options.min) !== "undefined" && input < options.min)
+                    return parseFloat(options.min, 10);
+
+                if(typeof(options.max) !== "undefined" && input > options.max)
+                    return parseFloat(options.max, 10);
+
+                return input;
+
+            case "date":
+                if(input instanceof(Date))
+                    return input;
+
+                return new Date(input);
+
+            case "hashTable":
+                if(!input || Array.isArray(input))
+                    return {};
+
+                if(typeof(input) === "object")
+                    return input;
+
+                if(typeof(input) !== "string")
+                    return {};
+
+                try {
+                    input = JSON.parse(input);
+                    return Array.isArray(input) ? {} : input;
+                } catch(e) {
+                }
+
+                return {};
+
+            case "array":
+                if(Array.isArray(input))
+                    return input;
+
+                if(!input || typeof(input) !== "string")
+                    return [];
+
+                try {
+                    input = JSON.parse(input);
+                    return Array.isArray(input) ? input : [];
+                } catch(e) {
+                }
+
+                return [];
+
+            case "json":
+                if(typeof(input) == "object")
+                    return input;
+
+                try {
+                    return JSON.parse(input);
+                } catch(e) {
+                }
+
+                return null;
+
+            //------------------------]>
+
+            default:
+                throw "[!] Sanitizer | Unknown Type.\n" + type + " : " + JSON.stringify(options);
+        }
+    }
+
     //-------[HELPERS]-------}>
 
     function wFuncStore(name, func, store) {
@@ -312,24 +415,28 @@ var $aigis = (function createInstance() {
         else return store[name];
     }
 
-
     //-----------------------------]>
 
-    var result = {
+    var gExport = {
         "global": function(v) {
             if(!typeof(global) == "object" || typeof(v) == "undefined" || typeof(global.$validate) != "undefined")
                 return this;
 
             if(v) {
-                var gObj = result.validate;
+                var gSObj = gExport.sanitize,
+                    gVObj = gExport.validate;
 
-                for(var i in result) {
-                    if(result.hasOwnProperty(i)) gObj[i] = result[i];
+                for(var i in gExport) {
+                    if(gExport.hasOwnProperty(i))
+                        gSObj[i] = gVObj[i] = gExport[i];
                 }
 
-                global.$validate = gObj;
-            } else
+                global.$sanitize = gSObj;
+                global.$validate = gVObj;
+            } else {
+                delete global.$sanitize;
                 delete global.$validate;
+            }
 
             return this;
         },
@@ -340,9 +447,63 @@ var $aigis = (function createInstance() {
 
         //--------]>
 
+        "sanitize": function(schema, data, options) {
+            if(!schema)
+                throw "[!] Sanitizer | schema: " + schema;
+
+            options = options || {};
+
+            //----------------]>
+
+            if(typeof(schema) === "object") {
+                if(!data || typeof(data) !== "object")
+                    return null;
+
+                //----------------)>
+
+                var result = {};
+
+                for(var field in schema) {
+                    if(!schema.hasOwnProperty(field)) continue;
+
+                    var nameFunc,
+                        schemaData = schema[field],
+                        fieldData = data[field];
+
+                    //-----------------)>
+
+                    if(typeof(schemaData) === "string") {
+                        nameFunc = schemaData;
+                        schemaData = {};
+                    } else if(typeof(schemaData) === "object") {
+                        nameFunc = schemaData.use;
+                    }
+
+                    if(nameFunc[0] === "?") {
+                        if(typeof(fieldData) === "undefined")
+                            continue;
+
+                        nameFunc = nameFunc.substring(1);
+                    }
+
+                    //-----------------)>
+
+                    result[field] = normalize(nameFunc, fieldData, schemaData);
+                }
+
+                return result;
+            }
+
+            //----------------]>
+
+            throw "[!] Sanitizer | schema: " + schema;
+        },
+
         "validate": function(schema, data, options) {
             if(!schema)
-                throw "[!] Validation | not found method: " + schema;
+                throw "[!] Validation | schema: " + schema;
+
+            options = options || {};
 
             //----------------]>
 
@@ -366,7 +527,7 @@ var $aigis = (function createInstance() {
                     if(!func)
                         throw "[!] Validation | not found method: " + nameFunc;
 
-                    if(!func(args[1], args[2]))
+                    if(!func(args[1], args[2] || {}))
                         return false;
                 }
 
@@ -400,7 +561,7 @@ var $aigis = (function createInstance() {
 
                 //----------------)>
 
-                var optErrors = options && options.errors;
+                var optErrors = options.errors;
                 var result = optErrors ? null : true;
 
                 for(var field in schema) {
@@ -414,12 +575,13 @@ var $aigis = (function createInstance() {
 
                     if(typeof(schemaData) === "string") {
                         nameFunc = schemaData;
+                        schemaData = {};
                     } else if(typeof(schemaData) === "object") {
                         nameFunc = schemaData.use;
                     }
 
-                    if(nameFunc[0] == "?") {
-                        if(typeof(fieldData) == "undefined")
+                    if(nameFunc[0] === "?") {
+                        if(typeof(fieldData) === "undefined")
                             continue;
 
                         nameFunc = nameFunc.substring(1);
@@ -456,11 +618,11 @@ var $aigis = (function createInstance() {
 
             //----------------]>
 
-            throw "[!] Validation | not found method: " + schema;
+            throw "[!] Validation | schema: " + schema;
         }
     };
 
-    return result;
+    return gExport;
 })();
 
 //-----------------------------------------------------

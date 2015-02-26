@@ -14,7 +14,22 @@ require("../index");
 //-----------------------------------------------------
 
 console.log("+-------------------------+");
-console.log("| Custom");
+console.log("| S: HashTable");
+console.log("+-------------------------+");
+
+var schema  = {
+        "name":     "string",
+        "status":   "?string",
+        "pts":      {"use": "integer", "max": 30}
+    },
+    data    = {"name": "DT", "pts": "60"};
+
+console.log("1#", $sanitize(schema, data));
+
+
+
+console.log("+-------------------------+");
+console.log("| V: Custom");
 console.log("+-------------------------+");
 
 $validate.rule("testRuleMax10", function(input, options) {
@@ -26,7 +41,7 @@ console.log("1#", $validate("testRuleMax10", 8));
 
 
 console.log("+-------------------------+");
-console.log("| String");
+console.log("| V: String");
 console.log("+-------------------------+");
 
 console.log(JSON.stringify({
@@ -39,7 +54,7 @@ console.log(JSON.stringify({
 
 
 console.log("+-------------------------+");
-console.log("| Array");
+console.log("| V: Array");
 console.log("+-------------------------+");
 
 console.log(JSON.stringify({
@@ -52,7 +67,7 @@ console.log(JSON.stringify({
 
 
 console.log("+-------------------------+");
-console.log("| HashTable");
+console.log("| V: HashTable");
 console.log("+-------------------------+");
 
 var schema  = {"name": "string", "status": "?string", "pts": "integer"},
