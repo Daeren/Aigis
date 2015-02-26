@@ -5,7 +5,7 @@
 require("aigis");
 
 var schema  = {
-        "name":     {"use": "string", "length": 2, "trim": true},
+        "name":     {"use": "string", "max": 2, "trim": true},
         "status":   "?string",
         "pts":      {"use": "integer", "max": 30}
     },
@@ -40,7 +40,7 @@ $validate(schema, data);
 |-------------|-------------|-------------|
 |             | -           ||
 | boolean    		| true: "true", "on", "yes", "1"  	| - |
-| string    		| -  								| default, length, trim |
+| string    		| -  								| default, max, trim |
 | integer    		| -  								| default, min, max, enum |
 | float    			| -  								| default, min, max, enum |
 | date    			| -  								| - |
@@ -137,7 +137,7 @@ console.log("| S: HashTable");
 console.log("+-------------------------+");
 
 var schema  = {
-        "name":     {"use": "string", "length": 2, "trim": true},
+        "name":     {"use": "string", "max": 2, "trim": true},
         "status":   "?string",
         "pts":      {"use": "integer", "max": 30}
     },

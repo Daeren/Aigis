@@ -403,8 +403,8 @@ var $aigis = (function createInstance() {
                 if(options.trim)
                     input = input.trim();
 
-                if(typeof(options.length) !== "undefined" && input.length > options.length)
-                    input = input.substring(0, options.length);
+                if(typeof(options.max) !== "undefined" && input.length > options.max)
+                    input = input.substring(0, options.max);
 
                 break;
 
