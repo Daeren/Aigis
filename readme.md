@@ -122,6 +122,18 @@ require("aigis");
 //-----------------------------------------------------
 
 console.log("+-------------------------+");
+console.log("| V: Custom");
+console.log("+-------------------------+");
+
+$sanitize.type("testTypeDateEasy", function(input, options) {
+    return new Date(input);
+});
+
+console.log("0#", $sanitize("testTypeDateEasy", "Thu, 01 Jan 1970 00:00:00 GMT-0400"));
+console.log("1#", $sanitize("testTypeDateEasy", "---"));
+
+
+console.log("+-------------------------+");
 console.log("| S: String");
 console.log("+-------------------------+");
 
@@ -141,9 +153,9 @@ var schema  = {
         "status":   "?string",
         "pts":      {"use": "integer", "max": 30}
     },
-    data    = {"name": "   DT+  ", "pts": "60"};
+    data    = {"name": "   DT+  ", "pts": "60", "delThisField": "data"};
 
-console.log("1#", $sanitize(schema, data));
+console.log("0#", $sanitize(schema, data));
 
 
 
@@ -155,7 +167,7 @@ $validate.rule("testRuleMax10", function(input, options) {
     return input < 10;
 });
 
-console.log("1#", $validate("testRuleMax10", 50));
+console.log("0#", $validate("testRuleMax10", 50));
 console.log("1#", $validate("testRuleMax10", 8));
 
 
