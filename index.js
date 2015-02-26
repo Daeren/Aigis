@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.006
+// Version: 0.00.007
 //
 //-----------------------------------------------------
 
@@ -393,6 +393,22 @@ var $aigis = (function createInstance() {
                 if(typeof(options.max) !== "undefined" && input.length > options.max)
                     input = input.substring(0, options.max);
 
+                if(options.onlyDigits)
+                    input = input.replace(/\D/g, "");
+                else if(options.onlyAlphanumeric)
+                    input = input.replace(/\W/g, "");
+
+                if(options.uppercase)
+                    input = input.toUpperCase();
+                else if(options.lowercase)
+                    input = input.toLowerCase();
+
+                if(options.escape)
+                    input = input
+                        .replace(/&/g, '&amp;')
+                        .replace(/"/g, '&quot;').replace(/'/g, '&#x27;')
+                        .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
                 break;
 
             case "integer":
@@ -402,6 +418,9 @@ var $aigis = (function createInstance() {
 
                     break;
                 }
+
+                if(options.abs)
+                    input = Math.abs(input);
 
                 if(typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                     return NaN;
@@ -421,6 +440,9 @@ var $aigis = (function createInstance() {
 
                     break;
                 }
+
+                if(options.abs)
+                    input = Math.abs(input);
 
                 if(typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                     return NaN;

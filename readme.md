@@ -7,9 +7,9 @@ require("aigis");
 var schema  = {
         "name":     {"use": "string", "max": 2, "trim": true},
         "status":   "?string",
-        "pts":      {"use": "integer", "max": 30}
+        "pts":      {"use": "integer", "max": 30, "abs": true}
     },
-    data    = {"name": "  XX+ ", "pts": "60", "delThisField": "data"};
+    data    = {"name": "  XX+ ", "pts": "-60", "delThisField": "data"};
 
 $sanitize(schema, data);
 $validate(schema, data);
@@ -27,7 +27,8 @@ $validate(schema, data);
 |-------------|-------------|-------------|
 |             | -           ||
 | global      | Set `$sanitize, $validate` as Global Var (NodeJS)  	| (v [default: true]) 				|
-| rule        | Add/Remove/Get custom Rule  						| (name, [func]) ~ func(input, options) |
+| type        | Set/Get/Delete custom Type (Sanitize) 				| (name, [func]) ~ func(input, options) |
+| rule        | Set/Get/Delete custom Rule (Validate) 				| (name, [func]) ~ func(input, options) |
 |             | -           ||			
 | sanitize    | -								   					| (schema (String/HashTable), data, [options]) 		|
 | validate    | -								   					| (schema (String/HashTable), data, [options]) 		|
@@ -40,9 +41,9 @@ $validate(schema, data);
 |-------------|-------------|-------------|
 |             | -           ||
 | boolean    		| true: "true", "on", "yes", "1"  	| - |
-| string    		| -  								| default, max, trim |
-| integer    		| -  								| default, min, max, enum |
-| float    			| -  								| default, min, max, enum |
+| string    		| -  								| default, max, trim, escape, lowercase, uppercase, onlyDigits, onlyAlphanumeric |
+| integer    		| -  								| default, min, max, enum, abs |
+| float    			| -  								| default, min, max, enum, abs |
 | date    			| -  								| - |
 | hashTable    		| -  								| - |
 | array    			| -  								| max |
@@ -72,31 +73,31 @@ $validate(schema, data);
 | Name        | Desc        | Params/Options		|
 |-------------|-------------|-------------|
 |               	| -           ||
-| null    			| -  								| - |
-| nan    			| -  								| - |
-| finite    		| If number and not: NaN, INFINITY  								| - |
+| null    			| -  																		| - |
+| nan    			| -  																		| - |
+| finite    		| If number and not: NaN, INFINITY  										| - |
 |               	| -           ||
-| boolean    		| -  								| - |
-| string    		| -  								| min, max, enum, pattern |
-| integer    		| -  								| min, max, enum |
-| float    			| -  								| min, max, enum |
-| date    			| -  								| - |
-| hashTable    		| -  								| - |
-| array    			| -  								| min, max |
-| json    			| -  								| - |
+| boolean    		| -  																		| - |
+| string    		| -  																		| min, max, enum, pattern |
+| integer    		| -  																		| min, max, enum |
+| float    			| -  																		| min, max, enum |
+| date    			| -  																		| - |
+| hashTable    		| -  																		| - |
+| array    			| -  																		| min, max |
+| json    			| -  																		| - |
 |               	| -           ||
-| required    		| Not: null, undefined, length==0, NaN, Invalid Date  								| - |
-| notEmpty    		| If string not empty  									| - |
-| lowercase    		| If string is lowercase  								| - |
-| uppercase    		| If string is uppercase  								| - |
+| required    		| Not: null, undefined, length==0, NaN, Invalid Date  						| - |
+| notEmpty    		| If string not empty  														| - |
+| lowercase    		| If string is lowercase  													| - |
+| uppercase    		| If string is uppercase  													| - |
 |               	| -           ||
-| alphanumeric    	| Only letters and numbers  								| - |
-| alpha    			| Only letters  								| - |
-| numeric    		| Only numbers  								| - |
-| hexadecimal    	| -  								| - |
-| email    			| - 								| - |
-| url    			| Mailto, http, https, ftp, ssh, ws, gopher, news, telnet, ldap  								| - |
-| mongoId    		| -  								| - |
+| alphanumeric    	| If string is only letters and numbers  									| - |
+| alpha    			| If string is only letters  												| - |
+| numeric    		| If string is only numbers  												| - |
+| hexadecimal    	| -  																		| - |
+| email    			| - 																		| - |
+| url    			| Mailto, http, https, ftp, ssh, ws, gopher, news, telnet, ldap  			| - |
+| mongoId    		| -  																		| - |
 |               	| -           ||
 | hexColor    		| -  																									| strict (def: false) |
 | creditcard    	| Visa, MasterCard, American Express, Discover, Diners Club, and JCB card  								| - |

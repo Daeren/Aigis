@@ -14,7 +14,7 @@ require("../index");
 //-----------------------------------------------------
 
 console.log("+-------------------------+");
-console.log("| V: Custom");
+console.log("| S: Custom");
 console.log("+-------------------------+");
 
 $sanitize.type("testTypeDateEasy", function(input, options) {
@@ -43,9 +43,9 @@ console.log("+-------------------------+");
 var schema  = {
         "name":     {"use": "string", "max": 2, "trim": true},
         "status":   "?string",
-        "pts":      {"use": "integer", "max": 30}
+        "pts":      {"use": "integer", "max": 30, "abs": true}
     },
-    data    = {"name": "   DT+  ", "pts": "60", "delThisField": "data"};
+    data    = {"name": "   DT+  ", "pts": "-60", "delThisField": "data"};
 
 console.log("0#", $sanitize(schema, data));
 
