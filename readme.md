@@ -40,6 +40,7 @@ $validate(schema, data);
 | Name     	| Desc        | Val 			|
 |-------------|-------------|-------------|
 |             | -           ||
+| custom    		| -  								| - |
 | boolean    		| true: "true", "on", "yes", "1"  	| - |
 | string    		| -  								| default, max, trim, escape, lowercase, uppercase, onlyDigits, onlyAlphanumeric |
 | integer    		| -  								| default, min, max, enum, abs |
