@@ -48,7 +48,7 @@ var $aigis = (function createInstance() {
                 return false;
 
             if(
-                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1) ||
+                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
                 (typeof(options.pattern) !== "undefined" && !options.pattern.test(input)) ||
                 (typeof(options.min) !== "undefined" && input.length < options.min) ||
                 (typeof(options.max) !== "undefined" && input.length > options.max)
@@ -64,7 +64,7 @@ var $aigis = (function createInstance() {
 
             if(
                 (input !== parseInt(input, 10)) ||
-                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1) ||
+                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
                 (typeof(options.min) !== "undefined" && input < options.min) ||
                 (typeof(options.max) !== "undefined" && input > options.max)
             )
@@ -78,7 +78,7 @@ var $aigis = (function createInstance() {
                 return false;
 
             if(
-                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1) ||
+                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
                 (typeof(options.min) !== "undefined" && input < options.min) ||
                 (typeof(options.max) !== "undefined" && input > options.max)
             )
@@ -314,7 +314,7 @@ var $aigis = (function createInstance() {
                     return "";
 
                 if(typeof(input.toString) === "function")
-                    return inputv.toString();
+                    return input.toString();
 
                 if(typeof(input) === "object")
                     return Object.prototype.toString.call(input);
@@ -322,33 +322,13 @@ var $aigis = (function createInstance() {
                 return input + "";
 
             case "integer":
-                input = parseInt(input, options.radix || 10);
-
-                if(typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1)
-                    return NaN;
-
-                if(typeof(options.min) !== "undefined" && input < options.min)
-                    return parseInt(options.min, 10);
-
-                if(typeof(options.max) !== "undefined" && input > options.max)
-                    return parseInt(options.max, 10);
-
-                return input;
+                return parseInt(input, options.radix || 10);
 
             case "float":
-                if(typeof(input) !== "number")
-                    input = parseFloat(input);
+                if(typeof(input) === "number")
+                    return input;
 
-                if(typeof(options.enum) !== "undefined" && options.enum.indexOf(input) == -1)
-                    return NaN;
-
-                if(typeof(options.min) !== "undefined" && input < options.min)
-                    return parseFloat(options.min, 10);
-
-                if(typeof(options.max) !== "undefined" && input > options.max)
-                    return parseFloat(options.max, 10);
-
-                return input;
+                return parseFloat(input);
 
             case "date":
                 if(input instanceof(Date))
@@ -390,8 +370,11 @@ var $aigis = (function createInstance() {
                 return [];
 
             case "json":
-                if(typeof(input) == "object")
+                if(typeof(input) === "object")
                     return input;
+
+                if(!input || typeof(input) !== "string")
+                    return null;
 
                 try {
                     return JSON.parse(input);
@@ -405,6 +388,51 @@ var $aigis = (function createInstance() {
             default:
                 throw "[!] Sanitizer | Unknown Type.\n" + type + " : " + JSON.stringify(options);
         }
+    }
+
+    function postNormilize(type, input, options) {
+        switch(type) {
+            case "string":
+                if(options.trim)
+                    input = input.trim();
+
+                if(typeof(options.length) !== "undefined" && input.length > options.length)
+                    input = input.substring(0, options.length);
+
+                break;
+
+            case "integer":
+                if(typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
+                    return NaN;
+
+                if(typeof(options.min) !== "undefined" && input < options.min)
+                    return parseInt(options.min, 10);
+
+                if(typeof(options.max) !== "undefined" && input > options.max)
+                    return parseInt(options.max, 10);
+
+                break;
+
+            case "float":
+                if(typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
+                    return NaN;
+
+                if(typeof(options.min) !== "undefined" && input < options.min)
+                    return parseFloat(options.min);
+
+                if(typeof(options.max) !== "undefined" && input > options.max)
+                    return parseFloat(options.max);
+
+                break;
+
+            case "array":
+                if(typeof(options.max) !== "undefined" && input.length > options.max)
+                    input.length = options.max;
+
+                break;
+        }
+
+        return input;
     }
 
     //-------[HELPERS]-------}>
@@ -455,6 +483,17 @@ var $aigis = (function createInstance() {
 
             //----------------]>
 
+            if(typeof(schema) === "string") {
+                if(schema[0] == "?") {
+                    if(typeof(data) == "undefined")
+                        return undefined;
+
+                    schema = schema.substring(1);
+                }
+
+                return postNormilize(schema, normalize(schema, data, options), options);
+            }
+
             if(typeof(schema) === "object") {
                 if(!data || typeof(data) !== "object")
                     return null;
@@ -488,7 +527,7 @@ var $aigis = (function createInstance() {
 
                     //-----------------)>
 
-                    result[field] = normalize(nameFunc, fieldData, schemaData);
+                    result[field] = postNormilize(nameFunc, normalize(nameFunc, fieldData, schemaData), schemaData);
                 }
 
                 return result;
@@ -543,7 +582,6 @@ var $aigis = (function createInstance() {
 
                     schema = schema.substring(1);
                 }
-
 
                 var func = gVMethods[schema];
 

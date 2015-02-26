@@ -14,15 +14,26 @@ require("../index");
 //-----------------------------------------------------
 
 console.log("+-------------------------+");
+console.log("| S: String");
+console.log("+-------------------------+");
+
+console.log(JSON.stringify({
+    "T0":   $sanitize("string", 10),
+    "T1":   $sanitize("integer", "80", {"max": 50}),
+    "T2":   $sanitize("array", "[1,2,3]", {"max": 2})
+}, null, "\t"));
+
+
+console.log("+-------------------------+");
 console.log("| S: HashTable");
 console.log("+-------------------------+");
 
 var schema  = {
-        "name":     "string",
+        "name":     {"use": "string", "length": 2, "trim": true},
         "status":   "?string",
         "pts":      {"use": "integer", "max": 30}
     },
-    data    = {"name": "DT", "pts": "60"};
+    data    = {"name": "   DT+  ", "pts": "60"};
 
 console.log("1#", $sanitize(schema, data));
 
