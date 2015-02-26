@@ -45,7 +45,7 @@ $validate(schema, data);
 | string    		| -  								| default, max, trim, escape, lowercase, uppercase, onlyDigits, onlyAlphanumeric |
 | integer    		| -  								| default, min, max, enum, abs |
 | float    			| -  								| default, min, max, enum, abs |
-| date    			| -  								| - |
+| date    			| -  								| default |
 | hashTable    		| -  								| - |
 | array    			| -  								| max |
 | json    			| -  								| - |
@@ -124,7 +124,7 @@ require("aigis");
 //-----------------------------------------------------
 
 console.log("+-------------------------+");
-console.log("| V: Custom");
+console.log("| S: Custom");
 console.log("+-------------------------+");
 
 $sanitize.type("testTypeDateEasy", function(input, options) {

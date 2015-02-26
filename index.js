@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.007
+// Version: 0.00.008
 //
 //-----------------------------------------------------
 
@@ -458,6 +458,16 @@ var $aigis = (function createInstance() {
             case "array":
                 if(typeof(options.max) !== "undefined" && input.length > options.max)
                     input.length = options.max;
+
+                break;
+
+            case "date":
+                if(!input.getTime()) {
+                    if(typeof(options.default) !== "undefined")
+                        input = new Date(options.default);
+
+                    break;
+                }
 
                 break;
         }
