@@ -19,6 +19,7 @@ $validate(schema, data);
 * Examples: +
 * Browser: +
 
+#### ~
 
 * `?name` - Check an input only when the input exists (not undefined).
 * `type` -> `use` <- `rule`
