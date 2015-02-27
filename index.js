@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.009
+// Version: 0.00.010
 //
 //-----------------------------------------------------
 
@@ -492,7 +492,7 @@ var $aigis = (function createInstance() {
 
     var gExport = {
         "global": function(v) {
-            if(!typeof(global) == "object" || typeof(v) == "undefined" || typeof(global.$validate) != "undefined")
+            if(!typeof(global) === "object" || typeof(v) === "undefined")
                 return this;
 
             if(v) {
@@ -504,8 +504,11 @@ var $aigis = (function createInstance() {
                         gSObj[i] = gVObj[i] = gExport[i];
                 }
 
-                global.$sanitize = gSObj;
-                global.$validate = gVObj;
+                if(typeof(global.$sanitize) === "undefined")
+                    global.$sanitize = gSObj;
+
+                if(typeof(global.$validate) === "undefined")
+                    global.$validate = gVObj;
             } else {
                 delete global.$sanitize;
                 delete global.$validate;
