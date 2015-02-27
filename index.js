@@ -559,7 +559,7 @@ var $aigis = (function createInstance() {
                         nameFunc = schemaData;
                         schemaData = {};
                     } else if(typeof(schemaData) === "object") {
-                        nameFunc = schemaData.use;
+                        nameFunc = schemaData.type || schemaData.use;
                     }
 
                     if(nameFunc[0] === "?") {
@@ -625,7 +625,7 @@ var $aigis = (function createInstance() {
                         nameFunc = schemaData;
                         schemaData = {};
                     } else if(typeof(schemaData) === "object") {
-                        nameFunc = schemaData.use;
+                        nameFunc = schemaData.rule || schemaData.use;
                     }
 
                     if(nameFunc[0] === "?") {

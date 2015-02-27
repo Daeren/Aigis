@@ -40,14 +40,17 @@ console.log("+-------------------------+");
 console.log("| S: HashTable");
 console.log("+-------------------------+");
 
+
 var schema  = {
-        "name":     {"use": "string", "max": 2, "trim": true},
+        "name":     {"type": "string", "rule": "required", "max": 2, "trim": true},
         "status":   "?string",
         "pts":      {"use": "integer", "max": 30, "abs": true}
     },
-    data    = {"name": "   DT+  ", "pts": "-60", "delThisField": "data"};
+    data    = {"name": "  XX+ ", "pts": "-60", "delThisField": "data"};
 
 console.log("0#", $sanitize(schema, data));
+console.log("1#", $validate(schema, data));
+console.log("2#", $validate(schema, $sanitize(schema, data)));
 
 
 

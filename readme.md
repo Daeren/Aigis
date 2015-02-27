@@ -5,7 +5,7 @@
 require("aigis");
 
 var schema  = {
-        "name":     {"use": "string", "max": 2, "trim": true},
+        "name":     {"type": "string", "rule": "required", "max": 2, "trim": true},
         "status":   "?string",
         "pts":      {"use": "integer", "max": 30, "abs": true}
     },
@@ -20,6 +20,7 @@ $validate(schema, data);
 * Browser: +
 
 `?name` - Check an input only when the input exists (not undefined).
+`type` -> `use` <- `rule`
 
 #### Module
 
