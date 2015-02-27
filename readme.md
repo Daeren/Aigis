@@ -19,8 +19,10 @@ $validate(schema, data);
 * Examples: +
 * Browser: +
 
-`?name` - Check an input only when the input exists (not undefined).
-`type` -> `use` <- `rule`
+
+* `?name` - Check an input only when the input exists (not undefined).
+* `type` -> `use` <- `rule`
+
 
 #### Module
 
@@ -43,7 +45,7 @@ $validate(schema, data);
 |             | -           ||
 | custom    		| -  								| - |
 | boolean    		| true: "true", "on", "yes", "1"  	| - |
-| string    		| -  								| default, max, trim, escape, lowercase, uppercase, onlyDigits, onlyAlphanumeric |
+| string    		| -  								| default, max, trim, escape, lowercase, uppercase, onlyDigits, onlyAlphanumeric, onlyWordchar |
 | integer    		| -  								| default, min, max, enum, abs |
 | float    			| -  								| default, min, max, enum, abs |
 | date    			| -  								| default |
@@ -93,6 +95,7 @@ $validate(schema, data);
 | lowercase    		| If string is lowercase  													| - |
 | uppercase    		| If string is uppercase  													| - |
 |               	| -           ||
+| wordchar    		| Alphanumeric characters including the underscore  						| - |
 | alphanumeric    	| If string is only letters and numbers  									| - |
 | alpha    			| If string is only letters  												| - |
 | numeric    		| If string is only numbers  												| - |

@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.008
+// Version: 0.00.009
 //
 //-----------------------------------------------------
 
@@ -137,6 +137,9 @@ var $aigis = (function createInstance() {
                 return typeof(input) === "string" && input === input.toUpperCase()
 
             //-----------------------]>
+
+            case "wordchar":
+                return typeof(input) === "string" && !!input.match(/^[\w]+$/);
 
             case "alphanumeric":
                 return typeof(input) === "string" && !!input.match(/^[a-zA-Z0-9]+$/);
@@ -396,6 +399,8 @@ var $aigis = (function createInstance() {
                 if(options.onlyDigits)
                     input = input.replace(/\D/g, "");
                 else if(options.onlyAlphanumeric)
+                    input = input.replace(/[\W_]/g, "");
+                else if(options.onlyWordchar)
                     input = input.replace(/\W/g, "");
 
                 if(options.uppercase)

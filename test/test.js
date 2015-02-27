@@ -285,6 +285,13 @@ console.log("| Validate");
     testV(true, "uppercase", "0DROOTPOP");
     testV(false, "uppercase", "0drootpop");
 
+    testV(false, "wordchar", 10);
+    testV(false, "wordchar", "0d@root.pop");
+    testV(false, "wordchar", "10@");
+    testV(false, "wordchar", "1 0");
+    testV(true, "wordchar", "10_");
+    testV(true, "wordchar", "10");
+
     testV(false, "alphanumeric", 10);
     testV(true, "alphanumeric", "0drootpop");
     testV(false, "alphanumeric", "0d@root.pop");
