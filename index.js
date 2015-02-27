@@ -483,9 +483,30 @@ var $aigis = (function createInstance() {
     //-------[HELPERS]-------}>
 
     function wFuncStore(name, func, store) {
-        if(func === null) delete store[name];
-        else if(typeof(func) == "function") store[name] = func;
-        else return store[name];
+        if(name === null)
+            return;
+
+        switch(typeof(name)) {
+            case "string":
+                if(func === null) delete store[name];
+                else if(typeof(func) === "function") store[name] = func;
+
+                break;
+
+            case "object":
+                for(var field in name) {
+                    if(!name.hasOwnProperty(field)) continue;
+
+                    func = name[field];
+
+                    if(func === null) delete store[name];
+                    else if(typeof(func) === "function") store[name] = func;
+                }
+
+                break;
+        }
+
+        return;
     }
 
     //-----------------------------]>
@@ -510,19 +531,24 @@ var $aigis = (function createInstance() {
                 if(typeof(global.$validate) === "undefined")
                     global.$validate = gVObj;
             } else {
-                delete global.$sanitize;
-                delete global.$validate;
+                if(global.$sanitize === gExport.sanitize)
+                    delete global.$sanitize;
+
+                if(global.$validate === gExport.validate)
+                    delete global.$validate;
             }
 
             return this;
         },
 
         "type": function(name, func) {
-            return wFuncStore(name, func, customTypesStore);
+            wFuncStore(name, func, customTypesStore);
+            return this;
         },
 
         "rule": function(name, func) {
-            return wFuncStore(name, func, customRulesStore);
+            wFuncStore(name, func, customRulesStore);
+            return this;
         },
 
         //--------]>
@@ -676,8 +702,5 @@ var $aigis = (function createInstance() {
 //-----------------------------------------------------
 
 if(typeof(module) == "object") {
-    module.exports = $aigis;
-
-    if(typeof(global) == "object")
-        $aigis.global(true);
+    module.exports = $aigis.global(true);
 }
