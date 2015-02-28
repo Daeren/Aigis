@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.010
+// Version: 0.00.011
 //
 //-----------------------------------------------------
 
@@ -47,75 +47,54 @@ var $aigis = (function createInstance() {
                 if(typeof(input) !== "string")
                     return false;
 
-                if(
+                return !(
                     (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
                     (typeof(options.pattern) !== "undefined" && !options.pattern.test(input)) ||
                     (typeof(options.min) !== "undefined" && input.length < options.min) ||
                     (typeof(options.max) !== "undefined" && input.length > options.max)
-                )
-                    return false;
-
-                return true;
+                );
 
             case "integer":
                 if(typeof(input) !== "number" || isNaN(input))
                     return false;
 
-                if(
+                return !(
                     (input !== parseInt(input, 10)) ||
                     (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
                     (typeof(options.min) !== "undefined" && input < options.min) ||
                     (typeof(options.max) !== "undefined" && input > options.max)
-                )
-                    return false;
-
-                return true;
+                );
 
             case "float":
                 if(typeof(input) !== "number" || isNaN(input))
                     return false;
 
-                if(
+                return !(
                     (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
                     (typeof(options.min) !== "undefined" && input < options.min) ||
                     (typeof(options.max) !== "undefined" && input > options.max)
-                )
-                    return false;
-
-                return true;
+                );
 
             case "date":
-                if(!input || !(input instanceof(Date)) || !input.getTime())
-                    return false;
-
-                return true;
+                return input instanceof(Date) && !!input.getTime();
 
             case "hashTable":
                 if(Array.isArray(input) || !input)
                     return false;
 
-                if(typeof(input) === "object")
-                    return true;
-
-                return false;
+                return typeof(input) === "object";
 
             case "array":
                 if(!Array.isArray(input))
                     return false;
 
-                if(
+                return !(
                     (typeof(options.min) !== "undefined" && input.length < options.min) ||
                     (typeof(options.max) !== "undefined" && input.length > options.max)
-                )
-                    return false;
-
-                return true;
+                );
 
             case "json":
-                if(typeof(input) !== "object")
-                    return false;
-
-                return true;
+                return typeof(input) === "object";
 
             //-----------------------]>
 
@@ -131,10 +110,10 @@ var $aigis = (function createInstance() {
                 return typeof(input) === "string" && !input.match(/^[\s\t\r\n]*$/);
 
             case "lowercase":
-                return typeof(input) === "string" && input === input.toLowerCase()
+                return typeof(input) === "string" && input === input.toLowerCase();
 
             case "uppercase":
-                return typeof(input) === "string" && input === input.toUpperCase()
+                return typeof(input) === "string" && input === input.toUpperCase();
 
             //-----------------------]>
 
@@ -154,7 +133,7 @@ var $aigis = (function createInstance() {
                 return typeof(input) === "string" && !!input.match(/^[0-9a-fA-F]+$/);
 
             case "email":
-                return typeof(input) == "string" && !!input.match(/^(?:[\w\!\#\$\%\&\"\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\"\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!\.)){0,61}[a-zA-Z0-9]?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!$)){0,61}[a-zA-Z0-9]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/);
+                return typeof(input) === "string" && !!input.match(/^(?:[\w\!\#\$\%\&\"\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\"\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!\.)){0,61}[a-zA-Z0-9]?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!$)){0,61}[a-zA-Z0-9]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/);
 
             case "url":
                 return typeof(input) === "string" && !!input.match(/^(?!mailto:)(?:(?:https?|ftp|ssh|ws|gopher|news|telnet|ldap):\/\/)?(?:\S+(?::\S*)?@)?(?:(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))|localhost)(?::\d{2,5})?(?:\/[^\s]*)?$/i);
@@ -243,6 +222,9 @@ var $aigis = (function createInstance() {
                     };
 
                 ///---)>
+
+                if(version && version != 4 && version != 6)
+                    return false;
 
                 if(!version && !ipV4() && !(/^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/).test(input))
                     return false;
@@ -505,15 +487,13 @@ var $aigis = (function createInstance() {
 
                 break;
         }
-
-        return;
     }
 
     //-----------------------------]>
 
     var gExport = {
         "global": function(v) {
-            if(!typeof(global) === "object" || typeof(v) === "undefined")
+            if(global && typeof(global) !== "object" || typeof(v) === "undefined")
                 return this;
 
             if(v) {
