@@ -49,7 +49,7 @@ $validate(schema, data);
 | string    		| -  								| default, max, trim, escape, lowercase, uppercase, onlyDigits, onlyAlphanumeric, onlyWordchar |
 | integer    		| -  								| default, min, max, enum, abs |
 | float    			| -  								| default, min, max, enum, abs |
-| date    			| -  								| default |
+| date    			| -  								| default, min, max |
 | hashTable    		| -  								| - |
 | array    			| -  								| max |
 | json    			| -  								| - |
@@ -86,7 +86,7 @@ $validate(schema, data);
 | string    		| -  																		| min, max, enum, pattern |
 | integer    		| -  																		| min, max, enum |
 | float    			| -  																		| min, max, enum |
-| date    			| -  																		| - |
+| date    			| -  																		| min, max |
 | hashTable    		| -  																		| - |
 | array    			| -  																		| min, max |
 | json    			| -  																		| - |

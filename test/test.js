@@ -256,6 +256,8 @@ console.log("| Validate");
     testV(false, "date", 10);
     testV(false, "date", new Date(NaN));
     testV(true, "date", new Date());
+    testV(true, "date", new Date(), {"min": new Date("Thu, 01 Jan 1970 00:00:00 GMT-0400")});
+    testV(false, "date", new Date(), {"max": new Date("Thu, 01 Jan 1970 00:00:00 GMT-0400")});
     testV(false, "date", Date.now());
     testV(false, "date", "23/25/2014");
     testV(false, "date", "2014-25-23");

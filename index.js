@@ -76,7 +76,13 @@ var $aigis = (function createInstance() {
                 );
 
             case "date":
-                return input instanceof(Date) && !!input.getTime();
+                if(!(input instanceof(Date)) || !input.getTime())
+                    return false;
+
+                return !(
+                    (typeof(options.min) !== "undefined" && input < options.min) ||
+                    (typeof(options.max) !== "undefined" && input > options.max)
+                );
 
             case "hashTable":
                 if(Array.isArray(input) || !input)
@@ -455,6 +461,12 @@ var $aigis = (function createInstance() {
 
                     break;
                 }
+
+                if(typeof(options.min) !== "undefined" && input < options.min)
+                    return new Date(options.min);
+
+                if(typeof(options.max) !== "undefined" && input > options.max)
+                    return new Date(options.max);
 
                 break;
         }
