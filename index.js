@@ -378,6 +378,11 @@ var $aigis = (function createInstance() {
                     break;
                 }
 
+                if(typeof(options.enum) !== "undefined")
+                    return options.enum.indexOf(input) === -1 ? "" : input;
+
+                //------------]>
+
                 if(options.trim)
                     input = input.trim();
 
@@ -390,6 +395,9 @@ var $aigis = (function createInstance() {
                     input = input.replace(/[\W_]/g, "");
                 else if(options.onlyWordchar)
                     input = input.replace(/\W/g, "");
+
+                if(options.trim)
+                    input = input.trim();
 
                 if(options.uppercase)
                     input = input.toUpperCase();
@@ -412,11 +420,13 @@ var $aigis = (function createInstance() {
                     break;
                 }
 
+                if(typeof(options.enum) !== "undefined")
+                    return options.enum.indexOf(input) === -1 ? NaN : input;
+
+                //------------]>
+
                 if(options.abs)
                     input = Math.abs(input);
-
-                if(typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
-                    return NaN;
 
                 if(typeof(options.min) !== "undefined" && input < options.min)
                     return parseInt(options.min, 10);
@@ -434,11 +444,13 @@ var $aigis = (function createInstance() {
                     break;
                 }
 
+                if(typeof(options.enum) !== "undefined")
+                    return options.enum.indexOf(input) === -1 ? NaN : input;
+
+                //------------]>
+
                 if(options.abs)
                     input = Math.abs(input);
-
-                if(typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
-                    return NaN;
 
                 if(typeof(options.min) !== "undefined" && input < options.min)
                     return parseFloat(options.min);

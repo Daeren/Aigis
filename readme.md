@@ -5,11 +5,11 @@
 require("aigis");
 
 var schema  = {
-        "name":     {"type": "string", "rule": "required", "max": 2, "trim": true},
+        "name":     {"type": "string", "rule": "required", "max": 3, "trim": true},
         "status":   "?string",
         "pts":      {"use": "integer", "max": 30, "abs": true}
     },
-    data    = {"name": "  XX+ ", "pts": "-60", "delThisField": "data"};
+    data    = {"name": " XX + ", "pts": "-60", "delThisField": "data"};
 
 $sanitize(schema, data);
 $validate(schema, data);
@@ -23,7 +23,6 @@ $validate(schema, data);
 
 * `?name` - Check an input only when the input exists (not undefined).
 * `type` -> `use` <- `rule`
-
 
 #### Module
 
@@ -40,6 +39,10 @@ $validate(schema, data);
 
 
 #### Sanitize
+
+`default (stop chain) -> enum (stop chain) -> trim -> max -> [onlyDigits || onlyAlphanumeric || onlyWordchar] -> trim -> [uppercase || lowercase] -> escape`
+`default (stop chain) -> enum (stop chain)-> abs -> min -> max`
+
 
 | Name     	| Desc        | Val 			|
 |-------------|-------------|-------------|
