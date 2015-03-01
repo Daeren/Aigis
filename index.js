@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.011
+// Version: 0.00.012
 //
 //-----------------------------------------------------
 
@@ -100,7 +100,7 @@ var $aigis = (function createInstance() {
                 );
 
             case "json":
-                return typeof(input) === "object";
+                return input === null || typeof(input) === "object";
 
             //-----------------------]>
 
