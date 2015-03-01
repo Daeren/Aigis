@@ -40,9 +40,13 @@ $validate(schema, data); //_ false
 
 #### Sanitize
 
-`default (stop chain) -> enum (stop chain) -> trim -> max -> [onlyDigits || onlyAlphanumeric || onlyWordchar] -> trim -> [uppercase || lowercase] -> escape`
-`default (stop chain) -> enum (stop chain)-> abs -> min -> max`
+`
+String:
+default (stop chain) -> enum (stop chain) -> trim -> max -> only[Digits | Alphanumeric | Wordchar] -> trim -> [uppercase | lowercase] -> escape
 
+Number:
+default (stop chain) -> enum (stop chain)-> abs -> min -> max
+`
 
 | Name     	| Desc        | Val 			|
 |-------------|-------------|-------------|
