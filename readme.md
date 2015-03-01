@@ -11,8 +11,8 @@ var schema  = {
     },
     data    = {"name": " XX + ", "pts": "-60", "delThisField": "data"};
 
-$sanitize(schema, data);
-$validate(schema, data);
+$sanitize(schema, data); //_ { name: 'XX', pts: 30 }
+$validate(schema, data); //_ false
 ```
 
 * Tests: +
