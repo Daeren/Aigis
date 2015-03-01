@@ -290,6 +290,11 @@ console.log("| Validate");
     testV(false, "required", "");
     testV(false, "required", new Date(NaN));
 
+    testV(false, "equal", "1", {"value": "10"});
+    testV(true, "equal", "10", {"value": "10"});
+    testV(false, {"pswd": {"use": "equal", "field": "pswdCheck"}}, {"pswd": "10", "pswdCheck": "1"});
+    testV(true, {"pswd": {"use": "equal", "field": "pswdCheck"}}, {"pswd": "10", "pswdCheck": "10"});
+
     testV(false, "notEmpty", "                  ");
     testV(false, "notEmpty", "\n\n");
     testV(true, "notEmpty", "        1          ");

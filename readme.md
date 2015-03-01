@@ -58,7 +58,7 @@ String:
 default (stop chain) -> enum (stop chain) -> trim -> max -> only[Digits | Alphanumeric | Wordchar] -> trim -> [uppercase | lowercase] -> escape
 
 Number:
-default (stop chain) -> enum (stop chain)-> abs -> min -> max
+default (stop chain) -> enum (stop chain) -> abs -> min -> max
 ```
 
 
@@ -98,6 +98,7 @@ default (stop chain) -> enum (stop chain)-> abs -> min -> max
 | json    			| -  																		| - |
 |               	| -           ||
 | required    		| Not: null, undefined, length==0, NaN, Invalid Date  						| - |
+| equal    			| -  																		| value, field (If schema is HashTable) |
 | notEmpty    		| If string not empty  														| - |
 | lowercase    		| If string is lowercase  													| - |
 | uppercase    		| If string is uppercase  													| - |
@@ -202,21 +203,20 @@ console.log("+-------------------------+");
 console.log("| V: HashTable");
 console.log("+-------------------------+");
 
-var schema  = {"name": "string", "status": "?string", "pts": "integer"},
-    data    = {"name": "DT", "pts": "32"};
+var schema  = {
+        "name":         "string",
+
+        "pswd":         "string",
+        //"pswdCheck":    {"use": "equal", "field": "pswdCheck"},
+        "pswdCheck":    {"use": "equal", "value": "10"},
+
+        "status":       "?string",
+        "pts":          "integer"
+    },
+    data    = {"name": "DT", "pts": "32", "pswd": "1", "pswdCheck": "1"};
 
 console.log("1#", $validate(schema, data));
 console.log("2#", $validate(schema, data, {"errors": true}));
-
-
-var schema  = {
-        "name":     "string",
-        "status":   "?string",
-        "pts":      {"use": "integer", "max": 32}
-    },
-    data    = {"name": "DT", "pts": 32};
-
-console.log("3#", $validate(schema, data));
 ```
 
 #### 3# of the fundamental modules

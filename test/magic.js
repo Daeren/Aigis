@@ -84,18 +84,17 @@ console.log("+-------------------------+");
 console.log("| V: HashTable");
 console.log("+-------------------------+");
 
-var schema  = {"name": "string", "status": "?string", "pts": "integer"},
-    data    = {"name": "DT", "pts": "32"};
+var schema  = {
+        "name":         "string",
+
+        "pswd":         "string",
+        //"pswdCheck":    {"use": "equal", "field": "pswdCheck"},
+        "pswdCheck":    {"use": "equal", "value": "10"},
+
+        "status":       "?string",
+        "pts":          "integer"
+    },
+    data    = {"name": "DT", "pts": "32", "pswd": "1", "pswdCheck": "1"};
 
 console.log("1#", $validate(schema, data));
 console.log("2#", $validate(schema, data, {"errors": true}));
-
-
-var schema  = {
-        "name":     "string",
-        "status":   "?string",
-        "pts":      {"use": "integer", "max": 32}
-    },
-    data    = {"name": "DT", "pts": 32};
-
-console.log("3#", $validate(schema, data));

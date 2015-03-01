@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.012
+// Version: 0.00.013
 //
 //-----------------------------------------------------
 
@@ -27,7 +27,7 @@ var $aigis = (function createInstance() {
 
     //-----------------------------]>
 
-    function validation(use, input, options) {
+    function validation(use, input, options, data) {
         switch(use) {
             case "null":
                 return input === null;
@@ -111,6 +111,15 @@ var $aigis = (function createInstance() {
                     (typeof(input) === "string" && !input.length) ||
                     (input instanceof(Date) && !input.getTime())
                 );
+
+            case "equal":
+                if(typeof(options.value) !== "undefined")
+                    return input === options.value;
+
+                if(typeof(options.field) !== "undefined")
+                    return input === data[options.field];
+
+                return false;
 
             case "notEmpty":
                 return typeof(input) === "string" && !input.match(/^[\s\t\r\n]*$/);
@@ -636,7 +645,7 @@ var $aigis = (function createInstance() {
                     schema = schema.substring(1);
                 }
 
-                return validation(schema, data, options);
+                return validation(schema, data, options, data);
             }
 
             //-------]>
@@ -675,7 +684,7 @@ var $aigis = (function createInstance() {
 
                     //-----------------)>
 
-                    if(!validation(nameFunc, fieldData, schemaData)) {
+                    if(!validation(nameFunc, fieldData, schemaData, data)) {
                         if(optErrors) {
                             result = result || [];
                             result.push({
