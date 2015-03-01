@@ -32,7 +32,9 @@ console.log("+-------------------------+");
 console.log(JSON.stringify({
     "T0":   $sanitize("string", 10),
     "T1":   $sanitize("integer", "80", {"max": 50}),
-    "T2":   $sanitize("array", "[1,2,3]", {"max": 2})
+    "T2":   $sanitize("array", "[1,2,3]", {"max": 2}),
+    "T3":   $sanitize("integer", "50.5", {"enum": [10, 50]}),
+    "T4":   $sanitize("integer", "60.5", {"enum": [10, 50]})
 }, null, "\t"));
 
 
