@@ -88,13 +88,14 @@ var schema  = {
         "name":         "string",
 
         "pswd":         "string",
-        //"pswdCheck":    {"use": "equal", "field": "pswdCheck"},
-        "pswdCheck":    {"use": "equal", "value": "10"},
+        "pswdCheck":    {"use": "equal", "field": "pswd"}, //_ #1
+        //"pswdCheck":    {"use": "equal", "value": "/\\w+/g"}, //_ #2
 
         "status":       "?string",
         "pts":          "integer"
     },
-    data    = {"name": "DT", "pts": "32", "pswd": "1", "pswdCheck": "1"};
+    data    = {"name": "DT", "pts": "32", "pswd": "/\\s+/g", "pswdCheck": /\s+/g}; //_ #1
+    //data    = {"name": "DT", "pts": "32", "pswd": "", "pswdCheck": /\w+/g}; //_ #2
 
 console.log("1#", $validate(schema, data));
 console.log("2#", $validate(schema, data, {"errors": true}));

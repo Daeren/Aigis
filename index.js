@@ -113,11 +113,31 @@ var $aigis = (function createInstance() {
                 );
 
             case "equal":
-                if(typeof(options.value) !== "undefined")
-                    return input === options.value;
+                var d;
 
-                if(typeof(options.field) !== "undefined")
-                    return input === data[options.field];
+                if(typeof(options.value) !== "undefined") {
+                    d = options.value;
+
+                    if(typeof(input) !== "string")
+                        input = normalize("string", input);
+
+                    if(typeof(d) !== "string")
+                        d = normalize("string", d);
+
+                    return input === d;
+                }
+
+                if(typeof(options.field) !== "undefined" && data && typeof(data) === "object") {
+                    d = data[options.field];
+
+                    if(typeof(input) !== "string")
+                        input = normalize("string", input);
+
+                    if(typeof(d) !== "string")
+                        d = normalize("string", d);
+
+                    return input === d;
+                }
 
                 return false;
 
@@ -266,7 +286,7 @@ var $aigis = (function createInstance() {
                 if(func)
                     return func(input, options);
 
-                throw "[!] Validation | Unknown method.\n" + use + " : " + JSON.stringify(options);
+                throw "[!] Validation | Unknown rule.\n" + use + " : " + JSON.stringify(options);
         }
     }
 
@@ -645,7 +665,7 @@ var $aigis = (function createInstance() {
                     schema = schema.substring(1);
                 }
 
-                return validation(schema, data, options, data);
+                return validation(schema, data, options, options.data);
             }
 
             //-------]>

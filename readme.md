@@ -40,7 +40,7 @@ $validate(schema, data); //_ false
 
 #### Sanitize
 
-| Name     	| Desc        | Val 			|
+| Type     	| Desc        | Val 			|
 |-------------|-------------|-------------|
 |             | -           ||
 | custom    		| -  								| - |
@@ -67,7 +67,7 @@ default (stop chain) -> enum (stop chain) -> abs -> min -> max
 | Options     | Desc        | Val 			|
 |-------------|-------------|-------------|
 |             | -           ||
-| errors     | Validate method returns null or an array of errors   		|  true/false (def: false)|
+| errors      | Validate method returns null or an array of errors   		|  true/false (def: false)|
 
 
 ```js
@@ -81,7 +81,7 @@ default (stop chain) -> enum (stop chain) -> abs -> min -> max
 ```
 
 
-| Name        | Desc        | Params/Options		|
+| Rule        | Desc        | Params/Options		|
 |-------------|-------------|-------------|
 |               	| -           ||
 | null    			| -  																		| - |
@@ -98,7 +98,7 @@ default (stop chain) -> enum (stop chain) -> abs -> min -> max
 | json    			| -  																		| - |
 |               	| -           ||
 | required    		| Not: null, undefined, length==0, NaN, Invalid Date  						| - |
-| equal    			| -  																		| value, field (If schema is HashTable) |
+| equal    			| If the string matches the comparison  									| value, field (If `schema` is HashTable) |
 | notEmpty    		| If string not empty  														| - |
 | lowercase    		| If string is lowercase  													| - |
 | uppercase    		| If string is uppercase  													| - |
@@ -207,16 +207,14 @@ var schema  = {
         "name":         "string",
 
         "pswd":         "string",
-        //"pswdCheck":    {"use": "equal", "field": "pswdCheck"},
-        "pswdCheck":    {"use": "equal", "value": "10"},
+        "pswdCheck":    {"use": "equal", "field": "pswd"}, //_ #1
+        //"pswdCheck":    {"use": "equal", "value": "/\\w+/g"}, //_ #2
 
         "status":       "?string",
         "pts":          "integer"
     },
-    data    = {"name": "DT", "pts": "32", "pswd": "1", "pswdCheck": "1"};
-
-console.log("1#", $validate(schema, data));
-console.log("2#", $validate(schema, data, {"errors": true}));
+    data    = {"name": "DT", "pts": "32", "pswd": "/\\s+/g", "pswdCheck": /\s+/g}; //_ #1
+    //data    = {"name": "DT", "pts": "32", "pswd": "", "pswdCheck": /\w+/g}; //_ #2
 ```
 
 #### 3# of the fundamental modules
