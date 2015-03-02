@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.013
+// Version: 0.00.014
 //
 //-----------------------------------------------------
 
@@ -437,8 +437,6 @@ var $aigis = (function createInstance() {
 
                 if(options.trim)
                     input = input.trim();
-                else if(options.ltrim)
-                    input = input.replace(/^\s+/g, "");
                 else if(options.rtrim)
                     input = input.replace(/\s+$/g, "");
 
