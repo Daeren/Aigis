@@ -48,10 +48,10 @@ var $aigis = (function createInstance() {
                     return false;
 
                 return !(
-                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
-                    (typeof(options.pattern) !== "undefined" && !options.pattern.test(input)) ||
                     (typeof(options.min) !== "undefined" && input.length < options.min) ||
-                    (typeof(options.max) !== "undefined" && input.length > options.max)
+                    (typeof(options.max) !== "undefined" && input.length > options.max) ||
+                    (typeof(options.pattern) !== "undefined" && !options.pattern.test(input)) ||
+                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                 );
 
             case "integer":
@@ -60,9 +60,10 @@ var $aigis = (function createInstance() {
 
                 return !(
                     (input !== parseInt(input, 10)) ||
-                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
                     (typeof(options.min) !== "undefined" && input < options.min) ||
-                    (typeof(options.max) !== "undefined" && input > options.max)
+                    (typeof(options.max) !== "undefined" && input > options.max) ||
+                    (typeof(options.divisibleBy) !== "undefined" && (input % options.divisibleBy) !== 0) ||
+                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                 );
 
             case "float":
@@ -70,9 +71,10 @@ var $aigis = (function createInstance() {
                     return false;
 
                 return !(
-                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1) ||
                     (typeof(options.min) !== "undefined" && input < options.min) ||
-                    (typeof(options.max) !== "undefined" && input > options.max)
+                    (typeof(options.max) !== "undefined" && input > options.max) ||
+                    (typeof(options.divisibleBy) !== "undefined" && (input % options.divisibleBy) !== 0) ||
+                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                 );
 
             case "date":
@@ -449,9 +451,9 @@ var $aigis = (function createInstance() {
 
                 if(options.escape)
                     input = input
-                        .replace(/&/g, '&amp;')
-                        .replace(/"/g, '&quot;').replace(/'/g, '&#x27;')
-                        .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        .replace(/&/g, "&amp;").replace(/\//g, "&#x2F;")
+                        .replace(/"/g, "&quot;").replace(/'/g, "&#x27;")
+                        .replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
                 break;
 

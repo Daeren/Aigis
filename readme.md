@@ -90,8 +90,8 @@ default (stop chain) -> enum (stop chain) -> abs -> min -> max
 |               	| -           ||
 | boolean    		| -  																		| - |
 | string    		| -  																		| min, max, enum, pattern |
-| integer    		| -  																		| min, max, enum |
-| float    			| -  																		| min, max, enum |
+| integer    		| -  																		| min, max, enum, divisibleBy |
+| float    			| -  																		| min, max, enum, divisibleBy |
 | date    			| -  																		| min, max |
 | hashTable    		| -  																		| - |
 | array    			| -  																		| min, max |

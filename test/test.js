@@ -243,6 +243,8 @@ console.log("| Validate");
     testV(false, "integer", 10.5);
     testV(false, "integer", "10");
     testV(false, "integer", "");
+    testV(true, "integer", 8, {"divisibleBy": 2});
+    testV(false, "integer", 9, {"divisibleBy": 2});
 
     testV(true, "float", 10);
     testV(true, "float", 10.5);
@@ -255,6 +257,8 @@ console.log("| Validate");
     testV(true, "float", 10, {"min": 10, "max": 20});
     testV(false, "float", 1, {"min": 20, "max": 20});
     testV(false, "float", 100, {"min": 20, "max": 20});
+    testV(true, "float", 8, {"divisibleBy": 2});
+    testV(false, "float", 9, {"divisibleBy": 2});
 
     testV(false, "date", 10);
     testV(false, "date", new Date(NaN));
