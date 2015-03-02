@@ -414,6 +414,12 @@ var $aigis = (function createInstance() {
 
                 if(options.trim)
                     input = input.trim();
+                else if(options.ltrim)
+                    input = input.replace(/^\s/g, "");
+                else if(options.rtrim)
+                    input = input.replace(/\s$/g, "");
+
+                //------------]>
 
                 if(typeof(options.max) !== "undefined" && input.length > options.max)
                     input = input.substring(0, options.max);
@@ -425,8 +431,16 @@ var $aigis = (function createInstance() {
                 else if(options.onlyWordchar)
                     input = input.replace(/\W/g, "");
 
+                //------------]>
+
                 if(options.trim)
                     input = input.trim();
+                else if(options.ltrim)
+                    input = input.replace(/^\s+/g, "");
+                else if(options.rtrim)
+                    input = input.replace(/\s+$/g, "");
+
+                //------------]>
 
                 if(options.uppercase)
                     input = input.toUpperCase();

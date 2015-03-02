@@ -122,6 +122,9 @@ console.log("| Sanitize");
     testS("10", "string", "10");
     testS(date.toString(), "string", date);
     testS(regex.toString(), "string", regex);
+    testS("10", "string", "  10   ", {"trim": true});
+    testS("10   ", "string", " 10   ", {"ltrim": true});
+    testS(" 10", "string", " 10   ", {"rtrim": true});
 
     testS(NaN, "integer", undefined);
     testS(NaN, "integer", null);

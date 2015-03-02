@@ -45,7 +45,7 @@ $validate(schema, data); //_ false
 |             | -           ||
 | custom    		| -  								| - |
 | boolean    		| true: "true", "on", "yes", "1"  	| - |
-| string    		| -  								| default, max, trim, escape, lowercase, uppercase, onlyDigits, onlyAlphanumeric, onlyWordchar |
+| string    		| -  								| default, max, trim, ltrim, rtrim, escape, lowercase, uppercase, onlyDigits, onlyAlphanumeric, onlyWordchar |
 | integer    		| -  								| default, min, max, enum, abs |
 | float    			| -  								| default, min, max, enum, abs |
 | date    			| -  								| default, min, max |
@@ -55,7 +55,7 @@ $validate(schema, data); //_ false
 
 ```
 String:
-default (stop chain) -> enum (stop chain) -> trim -> max -> only[Digits | Alphanumeric | Wordchar] -> trim -> [uppercase | lowercase] -> escape
+default (stop chain) -> enum (stop chain) -> [trim|ltrim|rtrim] -> max -> only[Digits|Alphanumeric|Wordchar] -> [trim|ltrim|rtrim] -> [uppercase|lowercase] -> escape
 
 Number:
 default (stop chain) -> enum (stop chain) -> abs -> min -> max
