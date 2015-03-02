@@ -55,7 +55,7 @@ $validate(schema, data); //_ false
 
 ```
 String:
-default (stop chain) -> enum (stop chain) -> [trim|ltrim|rtrim] -> max -> only[Digits|Alphanumeric|Wordchar] -> [trim|ltrim|rtrim] -> [uppercase|lowercase] -> escape
+default (stop chain) -> enum (stop chain) -> [l|r]trim -> max -> only[Digits|Alphanumeric|Wordchar] -> [l|r]trim -> [uppercase|lowercase] -> escape
 
 Number:
 default (stop chain) -> enum (stop chain) -> abs -> min -> max
