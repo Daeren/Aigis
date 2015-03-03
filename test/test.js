@@ -43,6 +43,33 @@ var count = {
     "s": 0
 };
 
+function testX(exp, data) {
+    count.s++;
+
+    var result = true,
+        args = Array.prototype.slice.call(arguments, 1);
+
+    try {
+        if(typeof(exp) === "number")
+            rA.strictEqualNumber(data, exp);
+        else if(exp instanceof Date)
+            rA.strictEqualDate(data, exp);
+        else if(typeof(exp) === "object" || exp !== null)
+            rA.deepEqual(data, exp);
+        else
+            rA.strictEqual(data, exp);
+    } catch(e) {
+        result = false;
+
+        console.log(args);
+        console.log(e);
+        console.log("\n");
+    }
+
+    if(!result)
+        console.log("|%s|> T%s ", result ? "+" : "-", count.s);
+}
+
 function testS(exp, data) {
     count.s++;
 
@@ -96,6 +123,10 @@ var date = new Date(),
     dateNow = Date.now(),
     regex = /\s+/g;
 
+var schema  = {
+        "pts":      {"use": "integer", "max": 30, "abs": true, "scenario": "update"}
+    };
+
 //-------------------------]>
 
 console.log("+-------------------------+");
@@ -103,6 +134,16 @@ console.log("|");
 console.log("| Sanitize");
 
 {
+    {
+        var result;
+
+        result = $sanitize(schema, {"pts": 50}, {"scenario": ""});
+        testX(undefined, result.pts, "result.pts");
+
+        result = $sanitize(schema, {"pts": 50}, {"scenario": "update"});
+        testX(30, result.pts, "result.pts");
+    }
+
     testS(false, "boolean", undefined);
     testS(false, "boolean", null);
     testS(false, "boolean",  NaN);
@@ -195,6 +236,17 @@ console.log("|");
 console.log("| Validate");
 
 {
+    {
+        var result;
+
+        result = $validate(schema, {"pts": 50}, {"scenario": ""});
+        testX(true, result, "result.pts");
+
+        result = $validate(schema, {"pts": 50}, {"scenario": "update"});
+        testX(false, result, "result.pts");
+    }
+
+
     [
         "finite",
         "boolean", "string", "integer", "float", "date", "hashTable", "array",

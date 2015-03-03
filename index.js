@@ -288,7 +288,7 @@ var $aigis = (function createInstance() {
                 if(func)
                     return func(input, options);
 
-                throw "[!] Validation | Unknown rule.\n" + use + " : " + JSON.stringify(options);
+                throw new Error("[!] Validation | Unknown rule.\n" + use + " : " + JSON.stringify(options));
         }
     }
 
@@ -395,7 +395,7 @@ var $aigis = (function createInstance() {
                 if(func)
                     return func(input, options);
 
-                throw "[!] Sanitizer | Unknown type.\n" + type + " : " + JSON.stringify(options);
+                throw new Error("[!] Sanitizer | Unknown type.\n" + type + " : " + JSON.stringify(options));
         }
     }
 
@@ -544,7 +544,7 @@ var $aigis = (function createInstance() {
 
             case "object":
                 for(var field in name) {
-                    if(!name.hasOwnProperty(field)) continue;
+                    if(!Object.prototype.hasOwnProperty.call(name, field)) continue;
 
                     func = name[field];
 
@@ -602,7 +602,7 @@ var $aigis = (function createInstance() {
 
         "sanitize": function(schema, data, options) {
             if(!schema)
-                throw "[!] Sanitizer | schema: " + schema;
+                throw new Error("[!] Sanitizer | schema: " + schema);
 
             options = options || {};
 
@@ -625,10 +625,12 @@ var $aigis = (function createInstance() {
 
                 //----------------)>
 
+                var optScenario = options.scenario;
+
                 var result = {};
 
                 for(var field in schema) {
-                    if(!schema.hasOwnProperty(field)) continue;
+                    if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
 
                     var nameFunc,
                         schemaData = schema[field],
@@ -636,11 +638,20 @@ var $aigis = (function createInstance() {
 
                     //-----------------)>
 
+                    if(!schemaData) {
+                        throw new Error("[!] Sanitizer | schemaData: " + schemaData);
+                    }
+
                     if(typeof(schemaData) === "string") {
                         nameFunc = schemaData;
                         schemaData = {};
                     } else if(typeof(schemaData) === "object") {
                         nameFunc = schemaData.type || schemaData.use;
+
+                        if(typeof(schemaData.scenario) !== "undefined" && schemaData.scenario != optScenario)
+                            continue;
+                    } else {
+                        throw new Error("[!] Sanitizer | schemaData: " + schemaData);
                     }
 
                     if(nameFunc[0] === "?") {
@@ -660,12 +671,12 @@ var $aigis = (function createInstance() {
 
             //----------------]>
 
-            throw "[!] Sanitizer | schema: " + schema;
+            throw new Error("[!] Sanitizer | schema: " + schema);
         },
 
         "validate": function(schema, data, options) {
             if(!schema)
-                throw "[!] Validation | schema: " + schema;
+                throw new Error("[!] Validation | schema: " + schema);
 
             options = options || {};
 
@@ -690,23 +701,35 @@ var $aigis = (function createInstance() {
 
                 //----------------)>
 
-                var optErrors = options.errors;
+                var optScenario = options.scenario,
+                    optErrors   = options.errors;
+
                 var result = optErrors ? null : true;
 
                 for(var field in schema) {
-                    if(!schema.hasOwnProperty(field)) continue;
+                    if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
 
                     var nameFunc,
-                        schemaData = schema[field],
-                        fieldData = data[field];
+
+                        schemaData  = schema[field],
+                        fieldData   = data[field];
 
                     //-----------------)>
+
+                    if(!schemaData) {
+                        throw new Error("[!] Validation | schemaData: " + schemaData);
+                    }
 
                     if(typeof(schemaData) === "string") {
                         nameFunc = schemaData;
                         schemaData = {};
                     } else if(typeof(schemaData) === "object") {
                         nameFunc = schemaData.rule || schemaData.use;
+
+                        if(typeof(schemaData.scenario) !== "undefined" && schemaData.scenario != optScenario)
+                            continue;
+                    } else {
+                        throw new Error("[!] Validation | schemaData: " + schemaData);
                     }
 
                     if(nameFunc[0] === "?") {
@@ -717,6 +740,7 @@ var $aigis = (function createInstance() {
                     }
 
                     //-----------------)>
+
 
                     if(!validation(nameFunc, fieldData, schemaData, data)) {
                         if(optErrors) {
@@ -739,7 +763,7 @@ var $aigis = (function createInstance() {
 
             //----------------]>
 
-            throw "[!] Validation | schema: " + schema;
+            throw new Error("[!] Validation | schema: " + schema);
         }
     };
 

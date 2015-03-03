@@ -24,6 +24,7 @@ $validate(schema, data); //_ false
 * `?name` - Check an input only when the input exists (not undefined).
 * `type` -> `use` <- `rule`
 
+
 #### Module
 
 | Name        | Desc        | Args			|
@@ -37,12 +38,30 @@ $validate(schema, data); //_ false
 | validate    | -								   					| (schema (String/HashTable), data, [options]) 		|
 
 
+| Options     | Desc        | Val 			|
+|-------------|-------------|-------------|
+|             | -           ||
+| errors      | Validate method returns null or an array of errors   		|  true/false (def: false)|
+| scenario    | -   														|  - |
+
+
+```js
+//_ Error: structure 
+{
+    "field":    field,
+    "use":      nameFunc,
+
+    "input":    fieldData
+}
+```
+
 
 #### Sanitize
 
 | Type     	| Desc        | Val 			|
 |-------------|-------------|-------------|	
 |             | -           ||
+|               	| ALL (If `schema` is HashTable)    | scenario |
 | custom    		| -  								| - |
 | boolean    		| true: "true", "on", "yes", "1"  	| - |
 | string    		| -  								| default, max, trim, ltrim, rtrim, escape, lowercase, uppercase, onlyDigits, onlyAlphanumeric, onlyWordchar |
@@ -64,26 +83,10 @@ default (stop chain) -> enum (stop chain) -> abs -> min -> max
 
 #### Validate
 
-| Options     | Desc        | Val 			|
-|-------------|-------------|-------------|
-|             | -           ||
-| errors      | Validate method returns null or an array of errors   		|  true/false (def: false)|
-
-
-```js
-//_ Error: structure 
-{
-    "field":    field,
-    "use":      nameFunc,
-
-    "input":    fieldData
-}
-```
-
-
 | Rule        | Desc        | Params/Options		|
 |-------------|-------------|-------------|
 |               	| -           ||
+|               	| ALL (If `schema` is HashTable)          									| scenario |
 | null    			| -  																		| - |
 | nan    			| -  																		| - |
 | finite    		| If number and not: NaN, INFINITY  										| - |
