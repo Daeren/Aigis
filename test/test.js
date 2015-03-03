@@ -124,7 +124,7 @@ var date = new Date(),
     regex = /\s+/g;
 
 var schema  = {
-        "pts":      {"use": "integer", "max": 30, "abs": true, "scenario": "update"}
+        "pts":      {"use": "integer", "max": 30, "abs": true, "on": "update"}
     };
 
 //-------------------------]>
@@ -137,10 +137,10 @@ console.log("| Sanitize");
     {
         var result;
 
-        result = $sanitize(schema, {"pts": 50}, {"scenario": ""});
+        result = $sanitize(schema, {"pts": 50}, {"on": ""});
         testX(undefined, result.pts, "result.pts");
 
-        result = $sanitize(schema, {"pts": 50}, {"scenario": "update"});
+        result = $sanitize(schema, {"pts": 50}, {"on": "update"});
         testX(30, result.pts, "result.pts");
     }
 
@@ -239,10 +239,10 @@ console.log("| Validate");
     {
         var result;
 
-        result = $validate(schema, {"pts": 50}, {"scenario": ""});
+        result = $validate(schema, {"pts": 50}, {"on": ""});
         testX(true, result, "result.pts");
 
-        result = $validate(schema, {"pts": 50}, {"scenario": "update"});
+        result = $validate(schema, {"pts": 50}, {"on": "update"});
         testX(false, result, "result.pts");
     }
 

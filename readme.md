@@ -42,7 +42,7 @@ $validate(schema, data); //_ false
 |-------------|-------------|-------------|
 |             | -           ||
 | errors      | Validate method returns null or an array of errors   		|  true/false (def: false)|
-| scenario    | -   														|  - |
+| on	      | Scenario   													|  - |
 
 
 ```js
@@ -61,7 +61,7 @@ $validate(schema, data); //_ false
 | Type     	| Desc        | Val 			|
 |-------------|-------------|-------------|	
 |             | -           ||
-|               	| ALL (If `schema` is HashTable)    | scenario |
+|               	| ALL (If `schema` is HashTable)    | on |
 | custom    		| -  								| - |
 | boolean    		| true: "true", "on", "yes", "1"  	| - |
 | string    		| -  								| default, max, trim, ltrim, rtrim, escape, lowercase, uppercase, onlyDigits, onlyAlphanumeric, onlyWordchar |
@@ -86,7 +86,7 @@ default (stop chain) -> enum (stop chain) -> abs -> min -> max
 | Rule        | Desc        | Params/Options		|
 |-------------|-------------|-------------|
 |               	| -           ||
-|               	| ALL (If `schema` is HashTable)          									| scenario |
+|               	| ALL (If `schema` is HashTable)          									| on |
 | null    			| -  																		| - |
 | nan    			| -  																		| - |
 | finite    		| If number and not: NaN, INFINITY  										| - |

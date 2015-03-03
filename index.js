@@ -625,7 +625,7 @@ var $aigis = (function createInstance() {
 
                 //----------------)>
 
-                var optScenario = options.scenario;
+                var optScenario = options.on;
 
                 var result = {};
 
@@ -648,7 +648,7 @@ var $aigis = (function createInstance() {
                     } else if(typeof(schemaData) === "object") {
                         nameFunc = schemaData.type || schemaData.use;
 
-                        if(typeof(schemaData.scenario) !== "undefined" && schemaData.scenario != optScenario)
+                        if(typeof(schemaData.on) !== "undefined" && schemaData.on != optScenario)
                             continue;
                     } else {
                         throw new Error("[!] Sanitizer | schemaData: " + schemaData);
@@ -701,7 +701,7 @@ var $aigis = (function createInstance() {
 
                 //----------------)>
 
-                var optScenario = options.scenario,
+                var optScenario = options.on,
                     optErrors   = options.errors;
 
                 var result = optErrors ? null : true;
@@ -726,7 +726,7 @@ var $aigis = (function createInstance() {
                     } else if(typeof(schemaData) === "object") {
                         nameFunc = schemaData.rule || schemaData.use;
 
-                        if(typeof(schemaData.scenario) !== "undefined" && schemaData.scenario != optScenario)
+                        if(typeof(schemaData.on) !== "undefined" && schemaData.on != optScenario)
                             continue;
                     } else {
                         throw new Error("[!] Validation | schemaData: " + schemaData);
