@@ -277,38 +277,32 @@ var $aigis = (function createInstance() {
 
     //---------[Storage]----------}>
 
-    {
-        var gTObj = gExport.typenize,
-            gSObj = gExport.sanitize,
-            gVObj = gExport.validate;
+    ["set", "get", "run"]
+        .forEach(function(name) {
+            function buildFunc(obj, store) {
+                switch(name) {
+                    case "set":
+                        return function(name, data) {
+                            store[name] = data;
+                            return obj;
+                        };
 
-        ["set", "get", "run"]
-            .forEach(function(name) {
-                function buildFunc(obj, store) {
-                    switch(name) {
-                        case "set":
-                            return function(name, data) {
-                                store[name] = data;
-                                return obj;
-                            };
+                    case "get":
+                        return function(name) {
+                            return store[name];
+                        };
 
-                        case "get":
-                            return function(name) {
-                                return store[name];
-                            };
-
-                        case "run":
-                            return function(name, data, options) {
-                                return obj(store[name], data, options);
-                            };
-                    }
+                    case "run":
+                        return function(name, data, options) {
+                            return obj(store[name], data, options);
+                        };
                 }
+            }
 
-                gTObj[name] = buildFunc(gTObj, typenizeSchemaStore);
-                gSObj[name] = buildFunc(gSObj, sanitizeSchemaStore);
-                gVObj[name] = buildFunc(gVObj, validateSchemaStore);
-            });
-    }
+            gExport.typenize[name] = buildFunc(gExport.typenize, typenizeSchemaStore);
+            gExport.sanitize[name] = buildFunc(gExport.sanitize, sanitizeSchemaStore);
+            gExport.validate[name] = buildFunc(gExport.validate, validateSchemaStore);
+        });
 
     //------------------)>
 
