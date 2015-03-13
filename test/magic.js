@@ -14,6 +14,131 @@ require("../index");
 //-----------------------------------------------------
 
 console.log("+-------------------------+");
+console.log("| Schema");
+console.log("+-------------------------+");
+
+var schema = {
+        "name": {
+            "type": "string",
+            "rule": "required",
+
+            "max":  3,
+            "trim": true
+        },
+
+        "status": "?string",
+
+        "pts": {
+            "use": "integer",
+
+            "max":  30,
+            "abs":  true
+        },
+
+        "data": {
+            "type": "hashTable",
+
+            "schema": {
+                "login":    "string",
+                "password": "string",
+
+                "more": {
+                    "type": "hashTable",
+
+                    "schema": {
+                        "someData": "string"
+                    }
+                }
+            }
+        }
+    },
+
+    data = {"name": " XX + ", "pts": "-60", "delThisField": "data"};
+
+$typenize(schema, data); //_ { name: ' XX + ', pts: -60 }
+$sanitize(schema, data); //_ { name: 'XX', pts: 30 }
+$validate(schema, data); //_ false
+
+console.log(JSON.stringify({
+    "T0":   $typenize(schema, data),
+    "T1":   $sanitize(schema, data),
+    "T2":   $validate(schema, data)
+}, null, "\t"));
+
+
+
+
+console.log("+-------------------------+");
+console.log("| Store");
+console.log("+-------------------------+");
+
+$typenize.set("myName", {"name": "string"});
+
+console.log("0#", $typenize.run("myName", {"name": [1,2,3]}));
+console.log("1#", $typenize.get("myName"));
+
+
+$sanitize.set("myName", {"name": "string"});
+
+console.log("0#", $sanitize.run("myName", {"name": [1,2,3]}));
+console.log("1#", $sanitize.get("myName"));
+
+
+$validate.set("myName", {"name": "string"});
+
+console.log("0#", $validate.run("myName", {"name": [1,2,3]}));
+console.log("1#", $validate.get("myName"));
+
+
+
+
+console.log("+-------------------------+");
+console.log("| T: Schema");
+console.log("+-------------------------+");
+
+console.log("0#", $typenize("string", 10) + 10);
+
+
+var schema  = {
+        "name":     "?string",
+
+        "data":     {
+            "type":     "hashTable",
+
+            "schema":   {
+                "login":    "string",
+                "password": "string",
+
+                "deep":     {
+                    "type":     "hashTable",
+
+                    "schema":   {
+                        "someData":    "string"
+                    }
+                }
+            }
+        }
+    },
+
+    data    = {
+        "name": "XX"/*,
+
+        "data": {
+            "login":    new Date(),
+            "password": /s+/g,
+
+            "deep":     {
+                "someData":   [1,2,3]
+            }
+        }
+        */
+    };
+
+console.log("1#", $typenize(schema, data));
+
+
+
+console.log("+-------------------------+");
 console.log("| S: Custom");
 console.log("+-------------------------+");
 
@@ -92,6 +217,7 @@ var schema  = {
         //"pswdCheck":    {"use": "equal", "value": "/\\w+/g"}, //_ #2
 
         "status":       "?string",
+
         "pts":          "integer"
     },
     data    = {"name": "DT", "pts": "32", "pswd": "/\\s+/g", "pswdCheck": /\s+/g}; //_ #1

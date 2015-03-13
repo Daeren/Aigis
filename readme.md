@@ -4,17 +4,58 @@
 ```js
 require("aigis");
 
-var schema  = {
-        "name":     {"type": "string", "rule": "required", "max": 3, "trim": true},
-        "status":   "?string",
-        "pts":      {"use": "integer", "max": 30, "abs": true}
-    },
-    data    = {"name": " XX + ", "pts": "-60", "delThisField": "data"};
+var schema = {
+        "name": {
+            "type": "string",
+            "rule": "required",
 
-$sanitize(schema, data); //_ { name: 'XX', pts: 30 }
-$validate(schema, data); //_ false
+            "max":  3,
+            "trim": true
+        },
+
+        "status": "?string",
+
+        "pts": {
+            "use": "integer",
+
+            "max":  30,
+            "abs":  true
+        },
+
+        "data": {
+            "type": "hashTable",
+
+            "schema": {
+                "login":    "string",
+                "password": "string",
+
+                "more": {
+                    "type": "hashTable",
+
+                    "schema": {
+                        "someData": "string"
+                    }
+                }
+            }
+        }
+    },
+
+    data = {"name": " XX + ", "pts": "-60", "delThisField": "data"};
+
+$typenize(schema, data);
+$sanitize(schema, data);
+$validate(schema, data);
+
+//_ $typenize:
+// { name: ' XX + ', pts: -60, data: { login: '', password: '', more: { someData: '' } } }
+
+//_ $sanitize:
+// { name: 'XX', pts: 30, data: { login: '', password: '', more: { someData: '' } } }
+
+//_ $validate: false
 ```
 
+* Support schema-tree: +
 * Tests: +
 * Examples: +
 * Browser: +
@@ -30,23 +71,29 @@ $validate(schema, data); //_ false
 | Name        | Desc        | Args			|
 |-------------|-------------|-------------|
 |             | -           ||
-| global      | Set `$sanitize, $validate` as Global Var (NodeJS)  	| (v [default: true]) 				|
-| type        | Set/Delete custom Type (Sanitize) 					| (name (String/HashTable), [func]) ~ func(input, options) |
-| rule        | Set/Delete custom Rule (Validate) 					| (name (String/HashTable), [func]) ~ func(input, options) |
-|             | -           ||			
-| sanitize    | -								   					| (schema (String/HashTable), data, [options]) 		|
-| validate    | -								   					| (schema (String/HashTable), data, [options]) 		|
+| createInstance    | Create new instance  												| ([isGlobal]) 				|
+| global      		| Set `$typenize, $sanitize, $validate` as Global Var (NodeJS)  	| (v [default: true]) 				|
+|             		| -           ||
+| type        		| Set/Delete custom Type (Sanitize) 								| (name (String/HashTable), [func]) ~ func(input, options) |
+| rule        		| Set/Delete custom Rule (Validate) 								| (name (String/HashTable), [func]) ~ func(input, options) |
+|             		| -           ||			
+| typenize    		| -								   									| (schema (String/HashTable), data, [options]) 		|
+| sanitize    		| -								   									| (schema (String/HashTable), data, [options]) 		|
+| validate    		| -								   									| (schema (String/HashTable), data, [options]) 		|
 
 
 | Options     | Desc        | Val 			|
 |-------------|-------------|-------------|
 |             | -           ||
-| errors      | Validate method returns null or an array of errors   		|  true/false (def: false)|
+|             | ALL         ||
 | on	      | Scenario   													|  - |
+|             | -           ||
+|             | Validate    ||
+| errors      | Validate method returns null or an array of errors   		|  true/false (def: false)|
 
 
 ```js
-//_ Error: structure 
+//_ Validation error: structure 
 {
     "field":    field,
     "use":      nameFunc,
@@ -56,9 +103,26 @@ $validate(schema, data); //_ false
 ```
 
 
+#### Typenize
+
+| Type     	  | Desc        | Params/Options 			|
+|-------------|-------------|-------------|	
+|             	| -           ||
+|               | ALL (If `schema` is HashTable)    | on |
+| custom    	| -  								||
+| boolean    	| true: "true", "on", "yes", "1"  	||
+| string    	| -  								||
+| integer    	| -  								||
+| float    		| -  								||
+| date    		| -  								||
+| hashTable    	| -  								| schema |
+| array    		| -  								||
+| json    		| -  								||
+
+
 #### Sanitize
 
-| Type     	| Desc        | Val 			|
+| Type     	| Desc        | Params/Options 			|
 |-------------|-------------|-------------|	
 |             | -           ||
 |               	| ALL (If `schema` is HashTable)    | on |

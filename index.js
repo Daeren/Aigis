@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.014
+// Version: 0.00.015
 //
 //-----------------------------------------------------
 
@@ -11,8 +11,16 @@ var $aigis = (function createInstance() {
 
     //-----------------------------------------------------
 
+    var C_MODE_TYPENIZE         = 1,
+        C_MODE_SANITIZE         = 2,
+        C_MODE_VALIDATE         = 3;
+
     var customTypesStore        = {},
         customRulesStore        = {};
+
+    var typenizeSchemaStore     = {},
+        sanitizeSchemaStore     = {},
+        validateSchemaStore     = {};
 
     var gVPhones = {
         "ru-RU":    /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/,
@@ -27,7 +35,527 @@ var $aigis = (function createInstance() {
 
     //-----------------------------]>
 
-    function validation(use, input, options, data) {
+    var gExport = {
+        "createInstance": function(isGlobal) {
+            var r = createInstance();
+
+            r.global(isGlobal);
+
+            return r;
+        },
+
+        //--------]>
+
+        "global": function(v) {
+            if(global && typeof(global) !== "object" || typeof(v) === "undefined")
+                return this;
+
+            if(v) {
+                var gTObj = gExport.typenize,
+                    gSObj = gExport.sanitize,
+                    gVObj = gExport.validate;
+
+                for(var i in gExport) {
+                    if(gExport.hasOwnProperty(i))
+                        gTObj[i] = gSObj[i] = gVObj[i] = gExport[i];
+                }
+
+                if(typeof(global.$typenize) === "undefined")
+                    global.$typenize = gTObj;
+
+                if(typeof(global.$sanitize) === "undefined")
+                    global.$sanitize = gSObj;
+
+                if(typeof(global.$validate) === "undefined")
+                    global.$validate = gVObj;
+            } else {
+                if(global.$typenize === gExport.typenize)
+                    delete global.$typenize;
+
+                if(global.$sanitize === gExport.sanitize)
+                    delete global.$sanitize;
+
+                if(global.$validate === gExport.validate)
+                    delete global.$validate;
+            }
+
+            return this;
+        },
+
+        "type": function(name, func) {
+            wFuncStore(name, func, customTypesStore);
+            return this;
+        },
+
+        "rule": function(name, func) {
+            wFuncStore(name, func, customRulesStore);
+            return this;
+        },
+
+        //--------]>
+
+        "typenize": function(schema, data, options) {
+            return parseSchema(C_MODE_TYPENIZE, schema, data, options, {
+                "string": function(schema, data, options) {
+                    return $typenize(schema, data, options);
+                },
+
+                "hashTable": function(schema, data, options) {
+                    var optScenario = options.on;
+
+                    var result = {};
+
+                    for(var field in schema) {
+                        if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
+
+                        var nameFunc,
+                            schemaData = schema[field],
+                            fieldData = data[field];
+
+                        if(!schemaData) {
+                            throw new Error("[!] Typenize | schemaData: " + schemaData);
+                        }
+
+                        //-----------------)>
+
+                        if(typeof(schemaData) === "string") {
+                            nameFunc = schemaData;
+                            schemaData = {};
+                        }
+                        else if(typeof(schemaData) === "object") {
+                            nameFunc = schemaData.type || schemaData.use;
+
+                            if(typeof(schemaData.on) !== "undefined" && schemaData.on != optScenario)
+                                continue;
+                        }
+                        else {
+                            throw new Error("[!] Typenize | schemaData: " + schemaData);
+                        }
+
+                        if(nameFunc[0] === "?") {
+                            if(typeof(fieldData) === "undefined")
+                                continue;
+
+                            nameFunc = nameFunc.substring(1);
+                        }
+
+                        //-----------------)>
+
+                        result[field] = $typenize(nameFunc, fieldData, schemaData);
+                    }
+
+                    return result;
+                }
+            });
+        },
+
+        "sanitize": function(schema, data, options) {
+            return parseSchema(C_MODE_SANITIZE, schema, data, options, {
+                "string": function(schema, data, options) {
+                    return $sanitize(schema, $typenize(schema, data, options), options);
+                },
+
+                "hashTable": function(schema, data, options) {
+                    var optScenario = options.on;
+
+                    var result = {};
+
+                    for(var field in schema) {
+                        if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
+
+                        var nameFunc,
+                            schemaData = schema[field],
+                            fieldData = data[field];
+
+                        if(!schemaData) {
+                            throw new Error("[!] Sanitize | schemaData: " + schemaData);
+                        }
+
+                        //-----------------)>
+
+                        if(typeof(schemaData) === "string") {
+                            nameFunc = schemaData;
+                            schemaData = {};
+                        }
+                        else if(typeof(schemaData) === "object") {
+                            nameFunc = schemaData.type || schemaData.use;
+
+                            if(typeof(schemaData.on) !== "undefined" && schemaData.on != optScenario)
+                                continue;
+                        }
+                        else {
+                            throw new Error("[!] Sanitize | schemaData: " + schemaData);
+                        }
+
+                        if(nameFunc[0] === "?") {
+                            if(typeof(fieldData) === "undefined")
+                                continue;
+
+                            nameFunc = nameFunc.substring(1);
+                        }
+
+                        //-----------------)>
+
+                        result[field] = $sanitize(nameFunc, $typenize(nameFunc, fieldData, schemaData), schemaData);
+                    }
+
+                    return result;
+                }
+            });
+        },
+
+        "validate": function(schema, data, options) {
+            return parseSchema(C_MODE_VALIDATE, schema, data, options, {
+                "string": function(schema, data, options) {
+                    return $validate(schema, data, options, options.data);
+                },
+
+                "hashTable": function(schema, data, options) {
+                    var optScenario = options.on,
+                        optErrors   = options.errors;
+
+                    var result = optErrors ? null : true;
+
+                    for(var field in schema) {
+                        if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
+
+                        var nameFunc,
+
+                            schemaData  = schema[field],
+                            fieldData   = data[field];
+
+                        if(!schemaData) {
+                            throw new Error("[!] Validation | schemaData: " + schemaData);
+                        }
+
+                        //-----------------)>
+
+                        if(typeof(schemaData) === "string") {
+                            nameFunc = schemaData;
+                            schemaData = {};
+                        }
+                        else if(typeof(schemaData) === "object") {
+                            nameFunc = schemaData.rule || schemaData.use;
+
+                            if(typeof(schemaData.on) !== "undefined" && schemaData.on != optScenario)
+                                continue;
+                        }
+                        else {
+                            throw new Error("[!] Validation | schemaData: " + schemaData);
+                        }
+
+                        if(nameFunc[0] === "?") {
+                            if(typeof(fieldData) === "undefined")
+                                continue;
+
+                            nameFunc = nameFunc.substring(1);
+                        }
+
+                        //-----------------)>
+
+                        if(!$validate(nameFunc, fieldData, schemaData, data)) {
+                            if(optErrors) {
+                                result = result || [];
+                                result.push({
+                                    "field":    field,
+                                    "use":      nameFunc,
+
+                                    "input":    fieldData
+                                });
+                            } else {
+                                result = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    return result;
+                }
+            });
+        }
+    };
+
+    //---------[Storage]----------}>
+
+    {
+        var gTObj = gExport.typenize,
+            gSObj = gExport.sanitize,
+            gVObj = gExport.validate;
+
+        ["set", "get", "run"]
+            .forEach(function(name) {
+                function buildFunc(obj, store) {
+                    switch(name) {
+                        case "set":
+                            return function(name, data) {
+                                store[name] = data;
+                                return obj;
+                            };
+
+                        case "get":
+                            return function(name) {
+                                return store[name];
+                            };
+
+                        case "run":
+                            return function(name, data, options) {
+                                return obj(store[name], data, options);
+                            };
+                    }
+                }
+
+                gTObj[name] = buildFunc(gTObj, typenizeSchemaStore);
+                gSObj[name] = buildFunc(gSObj, sanitizeSchemaStore);
+                gVObj[name] = buildFunc(gVObj, validateSchemaStore);
+            });
+    }
+
+    //------------------)>
+
+    return gExport;
+
+    //-----------------------------]>
+
+    function $typenize(type, input, options) {
+        if(type === "custom")
+            return input;
+
+        //------------------]>
+
+        switch(type) {
+            case "boolean":
+                if(typeof(input) === "boolean")
+                    return input;
+
+                if(typeof(input) === "string")
+                    return input === "true" || input === "on" || input === "yes" || input === "1";
+
+                return false;
+
+            case "string":
+                if(typeof(input) === "string")
+                    return input;
+
+                if(input === null || typeof(input) === "undefined")
+                    return "";
+
+                if(typeof(input.toString) === "function")
+                    return input.toString();
+
+                if(typeof(input) === "object")
+                    return Object.prototype.toString.call(input);
+
+                return input + "";
+
+            case "integer":
+                return parseInt(input, options.radix || 10);
+
+            case "float":
+                if(typeof(input) === "number")
+                    return input;
+
+                return parseFloat(input);
+
+            case "date":
+                if(input instanceof(Date))
+                    return input;
+
+                return new Date(input);
+
+            case "hashTable":
+                if(!input || Array.isArray(input))
+                    input = {};
+
+                if(typeof(options.schema) === "object") {
+                    return gExport.typenize(options.schema, input, options);
+                }
+
+                if(typeof(input) === "object")
+                    return input;
+
+                if(typeof(input) !== "string")
+                    return {};
+
+                try {
+                    input = JSON.parse(input);
+                    return Array.isArray(input) ? {} : input;
+                } catch(e) {
+                }
+
+                return {};
+
+            case "array":
+                if(Array.isArray(input))
+                    return input;
+
+                if(!input || typeof(input) !== "string")
+                    return [];
+
+                try {
+                    input = JSON.parse(input);
+                    return Array.isArray(input) ? input : [];
+                } catch(e) {
+                }
+
+                return [];
+
+            case "json":
+                if(typeof(input) === "object")
+                    return input;
+
+                if(!input || typeof(input) !== "string")
+                    return null;
+
+                try {
+                    return JSON.parse(input);
+                } catch(e) {
+                }
+
+                return null;
+
+            //------------------------]>
+
+            default:
+                var func = customTypesStore[type];
+
+                if(func)
+                    return func(input, options);
+
+                throw new Error("[!] Sanitize | Unknown type.\n" + type + " : " + JSON.stringify(options));
+        }
+    }
+
+    function $sanitize(type, input, options) {
+        switch(type) {
+            case "string":
+                if(!input) {
+                    if(typeof(options.default) === "string")
+                        input = options.default;
+
+                    break;
+                }
+
+                if(typeof(options.enum) !== "undefined")
+                    return options.enum.indexOf(input) === -1 ? "" : input;
+
+                //------------]>
+
+                if(options.trim)
+                    input = input.trim();
+                else if(options.ltrim)
+                    input = input.replace(/^\s/g, "");
+                else if(options.rtrim)
+                    input = input.replace(/\s$/g, "");
+
+                //------------]>
+
+                if(typeof(options.max) !== "undefined" && input.length > options.max)
+                    input = input.substring(0, options.max);
+
+                if(options.onlyDigits)
+                    input = input.replace(/\D/g, "");
+                else if(options.onlyAlphanumeric)
+                    input = input.replace(/[\W_]/g, "");
+                else if(options.onlyWordchar)
+                    input = input.replace(/\W/g, "");
+
+                //------------]>
+
+                if(options.trim)
+                    input = input.trim();
+                else if(options.rtrim)
+                    input = input.replace(/\s+$/g, "");
+
+                //------------]>
+
+                if(options.uppercase)
+                    input = input.toUpperCase();
+                else if(options.lowercase)
+                    input = input.toLowerCase();
+
+                if(options.escape)
+                    input = input
+                        .replace(/&/g, "&amp;").replace(/\//g, "&#x2F;")
+                        .replace(/"/g, "&quot;").replace(/'/g, "&#x27;")
+                        .replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+                break;
+
+            case "integer":
+                if(isNaN(input)) {
+                    if(typeof(options.default) === "number")
+                        input = parseInt(options.default, 10);
+
+                    break;
+                }
+
+                if(typeof(options.enum) !== "undefined")
+                    return options.enum.indexOf(input) === -1 ? NaN : input;
+
+                //------------]>
+
+                if(options.abs)
+                    input = Math.abs(input);
+
+                if(typeof(options.min) !== "undefined" && input < options.min)
+                    return parseInt(options.min, 10);
+
+                if(typeof(options.max) !== "undefined" && input > options.max)
+                    return parseInt(options.max, 10);
+
+                break;
+
+            case "float":
+                if(isNaN(input)) {
+                    if(typeof(options.default) === "number")
+                        input = options.default;
+
+                    break;
+                }
+
+                if(typeof(options.enum) !== "undefined")
+                    return options.enum.indexOf(input) === -1 ? NaN : input;
+
+                //------------]>
+
+                if(options.abs)
+                    input = Math.abs(input);
+
+                if(typeof(options.min) !== "undefined" && input < options.min)
+                    return parseFloat(options.min);
+
+                if(typeof(options.max) !== "undefined" && input > options.max)
+                    return parseFloat(options.max);
+
+                break;
+
+            case "array":
+                if(typeof(options.max) !== "undefined" && input.length > options.max)
+                    input.length = options.max;
+
+                break;
+
+            case "date":
+                if(!input.getTime()) {
+                    if(typeof(options.default) !== "undefined")
+                        input = new Date(options.default);
+
+                    break;
+                }
+
+                if(typeof(options.min) !== "undefined" && input < options.min)
+                    return new Date(options.min);
+
+                if(typeof(options.max) !== "undefined" && input > options.max)
+                    return new Date(options.max);
+
+                break;
+        }
+
+        return input;
+    }
+
+    function $validate(use, input, options, data) {
         switch(use) {
             case "null":
                 return input === null;
@@ -48,10 +576,10 @@ var $aigis = (function createInstance() {
                     return false;
 
                 return !(
-                    (typeof(options.min) !== "undefined" && input.length < options.min) ||
-                    (typeof(options.max) !== "undefined" && input.length > options.max) ||
-                    (typeof(options.pattern) !== "undefined" && !options.pattern.test(input)) ||
-                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
+                (typeof(options.min) !== "undefined" && input.length < options.min) ||
+                (typeof(options.max) !== "undefined" && input.length > options.max) ||
+                (typeof(options.pattern) !== "undefined" && !options.pattern.test(input)) ||
+                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                 );
 
             case "integer":
@@ -59,11 +587,11 @@ var $aigis = (function createInstance() {
                     return false;
 
                 return !(
-                    (input !== parseInt(input, 10)) ||
-                    (typeof(options.min) !== "undefined" && input < options.min) ||
-                    (typeof(options.max) !== "undefined" && input > options.max) ||
-                    (typeof(options.divisibleBy) !== "undefined" && (input % options.divisibleBy) !== 0) ||
-                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
+                (input !== parseInt(input, 10)) ||
+                (typeof(options.min) !== "undefined" && input < options.min) ||
+                (typeof(options.max) !== "undefined" && input > options.max) ||
+                (typeof(options.divisibleBy) !== "undefined" && (input % options.divisibleBy) !== 0) ||
+                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                 );
 
             case "float":
@@ -71,10 +599,10 @@ var $aigis = (function createInstance() {
                     return false;
 
                 return !(
-                    (typeof(options.min) !== "undefined" && input < options.min) ||
-                    (typeof(options.max) !== "undefined" && input > options.max) ||
-                    (typeof(options.divisibleBy) !== "undefined" && (input % options.divisibleBy) !== 0) ||
-                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
+                (typeof(options.min) !== "undefined" && input < options.min) ||
+                (typeof(options.max) !== "undefined" && input > options.max) ||
+                (typeof(options.divisibleBy) !== "undefined" && (input % options.divisibleBy) !== 0) ||
+                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                 );
 
             case "date":
@@ -82,8 +610,8 @@ var $aigis = (function createInstance() {
                     return false;
 
                 return !(
-                    (typeof(options.min) !== "undefined" && input < options.min) ||
-                    (typeof(options.max) !== "undefined" && input > options.max)
+                (typeof(options.min) !== "undefined" && input < options.min) ||
+                (typeof(options.max) !== "undefined" && input > options.max)
                 );
 
             case "hashTable":
@@ -97,8 +625,8 @@ var $aigis = (function createInstance() {
                     return false;
 
                 return !(
-                    (typeof(options.min) !== "undefined" && input.length < options.min) ||
-                    (typeof(options.max) !== "undefined" && input.length > options.max)
+                (typeof(options.min) !== "undefined" && input.length < options.min) ||
+                (typeof(options.max) !== "undefined" && input.length > options.max)
                 );
 
             case "json":
@@ -108,10 +636,10 @@ var $aigis = (function createInstance() {
 
             case "required":
                 return !(
-                    input === null || typeof(input) === "undefined" ||
-                    (typeof(input) === "number" && input !== input) ||
-                    (typeof(input) === "string" && !input.length) ||
-                    (input instanceof(Date) && !input.getTime())
+                input === null || typeof(input) === "undefined" ||
+                (typeof(input) === "number" && input !== input) ||
+                (typeof(input) === "string" && !input.length) ||
+                (input instanceof(Date) && !input.getTime())
                 );
 
             case "equal":
@@ -121,10 +649,10 @@ var $aigis = (function createInstance() {
                     d = options.value;
 
                     if(typeof(input) !== "string")
-                        input = normalize("string", input);
+                        input = $typenize("string", input);
 
                     if(typeof(d) !== "string")
-                        d = normalize("string", d);
+                        d = $typenize("string", d);
 
                     return input === d;
                 }
@@ -133,10 +661,10 @@ var $aigis = (function createInstance() {
                     d = data[options.field];
 
                     if(typeof(input) !== "string")
-                        input = normalize("string", input);
+                        input = $typenize("string", input);
 
                     if(typeof(d) !== "string")
-                        d = normalize("string", d);
+                        d = $typenize("string", d);
 
                     return input === d;
                 }
@@ -292,244 +820,58 @@ var $aigis = (function createInstance() {
         }
     }
 
-    //-----------------------------]>
-
-    function normalize(type, input, options) {
-        if(type === "custom")
-            return input;
-
-        //------------------]>
-
-        switch(type) {
-            case "boolean":
-                if(typeof(input) === "boolean")
-                    return input;
-
-                if(typeof(input) === "string")
-                    return input === "true" || input === "on" || input === "yes" || input === "1";
-
-                return false;
-
-            case "string":
-                if(typeof(input) === "string")
-                    return input;
-
-                if(input === null || typeof(input) === "undefined")
-                    return "";
-
-                if(typeof(input.toString) === "function")
-                    return input.toString();
-
-                if(typeof(input) === "object")
-                    return Object.prototype.toString.call(input);
-
-                return input + "";
-
-            case "integer":
-                return parseInt(input, options.radix || 10);
-
-            case "float":
-                if(typeof(input) === "number")
-                    return input;
-
-                return parseFloat(input);
-
-            case "date":
-                if(input instanceof(Date))
-                    return input;
-
-                return new Date(input);
-
-            case "hashTable":
-                if(!input || Array.isArray(input))
-                    return {};
-
-                if(typeof(input) === "object")
-                    return input;
-
-                if(typeof(input) !== "string")
-                    return {};
-
-                try {
-                    input = JSON.parse(input);
-                    return Array.isArray(input) ? {} : input;
-                } catch(e) {
-                }
-
-                return {};
-
-            case "array":
-                if(Array.isArray(input))
-                    return input;
-
-                if(!input || typeof(input) !== "string")
-                    return [];
-
-                try {
-                    input = JSON.parse(input);
-                    return Array.isArray(input) ? input : [];
-                } catch(e) {
-                }
-
-                return [];
-
-            case "json":
-                if(typeof(input) === "object")
-                    return input;
-
-                if(!input || typeof(input) !== "string")
-                    return null;
-
-                try {
-                    return JSON.parse(input);
-                } catch(e) {
-                }
-
-                return null;
-
-            //------------------------]>
-
-            default:
-                var func = customTypesStore[type];
-
-                if(func)
-                    return func(input, options);
-
-                throw new Error("[!] Sanitizer | Unknown type.\n" + type + " : " + JSON.stringify(options));
-        }
-    }
-
-    function postNormilize(type, input, options) {
-        switch(type) {
-            case "string":
-                if(!input) {
-                    if(typeof(options.default) === "string")
-                        input = options.default;
-
-                    break;
-                }
-
-                if(typeof(options.enum) !== "undefined")
-                    return options.enum.indexOf(input) === -1 ? "" : input;
-
-                //------------]>
-
-                if(options.trim)
-                    input = input.trim();
-                else if(options.ltrim)
-                    input = input.replace(/^\s/g, "");
-                else if(options.rtrim)
-                    input = input.replace(/\s$/g, "");
-
-                //------------]>
-
-                if(typeof(options.max) !== "undefined" && input.length > options.max)
-                    input = input.substring(0, options.max);
-
-                if(options.onlyDigits)
-                    input = input.replace(/\D/g, "");
-                else if(options.onlyAlphanumeric)
-                    input = input.replace(/[\W_]/g, "");
-                else if(options.onlyWordchar)
-                    input = input.replace(/\W/g, "");
-
-                //------------]>
-
-                if(options.trim)
-                    input = input.trim();
-                else if(options.rtrim)
-                    input = input.replace(/\s+$/g, "");
-
-                //------------]>
-
-                if(options.uppercase)
-                    input = input.toUpperCase();
-                else if(options.lowercase)
-                    input = input.toLowerCase();
-
-                if(options.escape)
-                    input = input
-                        .replace(/&/g, "&amp;").replace(/\//g, "&#x2F;")
-                        .replace(/"/g, "&quot;").replace(/'/g, "&#x27;")
-                        .replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-                break;
-
-            case "integer":
-                if(isNaN(input)) {
-                    if(typeof(options.default) === "number")
-                        input = parseInt(options.default, 10);
-
-                    break;
-                }
-
-                if(typeof(options.enum) !== "undefined")
-                    return options.enum.indexOf(input) === -1 ? NaN : input;
-
-                //------------]>
-
-                if(options.abs)
-                    input = Math.abs(input);
-
-                if(typeof(options.min) !== "undefined" && input < options.min)
-                    return parseInt(options.min, 10);
-
-                if(typeof(options.max) !== "undefined" && input > options.max)
-                    return parseInt(options.max, 10);
-
-                break;
-
-            case "float":
-                if(isNaN(input)) {
-                    if(typeof(options.default) === "number")
-                        input = options.default;
-
-                    break;
-                }
-
-                if(typeof(options.enum) !== "undefined")
-                    return options.enum.indexOf(input) === -1 ? NaN : input;
-
-                //------------]>
-
-                if(options.abs)
-                    input = Math.abs(input);
-
-                if(typeof(options.min) !== "undefined" && input < options.min)
-                    return parseFloat(options.min);
-
-                if(typeof(options.max) !== "undefined" && input > options.max)
-                    return parseFloat(options.max);
-
-                break;
-
-            case "array":
-                if(typeof(options.max) !== "undefined" && input.length > options.max)
-                    input.length = options.max;
-
-                break;
-
-            case "date":
-                if(!input.getTime()) {
-                    if(typeof(options.default) !== "undefined")
-                        input = new Date(options.default);
-
-                    break;
-                }
-
-                if(typeof(options.min) !== "undefined" && input < options.min)
-                    return new Date(options.min);
-
-                if(typeof(options.max) !== "undefined" && input > options.max)
-                    return new Date(options.max);
-
-                break;
-        }
-
-        return input;
-    }
-
     //-------[HELPERS]-------}>
+
+    function parseSchema(mode, schema, data, options, callbacks) {
+        if(!schema)
+            throw new Error("[!] Empty schema.");
+
+        options = options || {};
+
+        //----------------]>
+
+        if(typeof(schema) === "string") {
+            if(schema[0] === "?") {
+                if(typeof(data) === "undefined") {
+                    switch(mode) {
+                        case C_MODE_TYPENIZE:
+                        case C_MODE_SANITIZE:
+                            return undefined;
+
+                        case C_MODE_VALIDATE:
+                            return true;
+                    }
+                }
+
+                schema = schema.substring(1);
+            }
+
+            return callbacks.string(schema, data, options);
+        }
+
+        //-------]>
+
+        if(typeof(schema) === "object" && !Array.isArray(schema)) {
+            if(!data || typeof(data) !== "object") {
+                switch(mode) {
+                    case C_MODE_TYPENIZE:
+                    case C_MODE_SANITIZE:
+                        return null;
+
+                    case C_MODE_VALIDATE:
+                        return false;
+                }
+            }
+
+            //----------------)>
+
+            return callbacks.hashTable(schema, data, options);
+        }
+
+        //----------------]>
+
+        throw new Error("[!] Invalid schema.");
+    }
 
     function wFuncStore(name, func, store) {
         if(name === null)
@@ -555,219 +897,6 @@ var $aigis = (function createInstance() {
                 break;
         }
     }
-
-    //-----------------------------]>
-
-    var gExport = {
-        "global": function(v) {
-            if(global && typeof(global) !== "object" || typeof(v) === "undefined")
-                return this;
-
-            if(v) {
-                var gSObj = gExport.sanitize,
-                    gVObj = gExport.validate;
-
-                for(var i in gExport) {
-                    if(gExport.hasOwnProperty(i))
-                        gSObj[i] = gVObj[i] = gExport[i];
-                }
-
-                if(typeof(global.$sanitize) === "undefined")
-                    global.$sanitize = gSObj;
-
-                if(typeof(global.$validate) === "undefined")
-                    global.$validate = gVObj;
-            } else {
-                if(global.$sanitize === gExport.sanitize)
-                    delete global.$sanitize;
-
-                if(global.$validate === gExport.validate)
-                    delete global.$validate;
-            }
-
-            return this;
-        },
-
-        "type": function(name, func) {
-            wFuncStore(name, func, customTypesStore);
-            return this;
-        },
-
-        "rule": function(name, func) {
-            wFuncStore(name, func, customRulesStore);
-            return this;
-        },
-
-        //--------]>
-
-        "sanitize": function(schema, data, options) {
-            if(!schema)
-                throw new Error("[!] Sanitizer | schema: " + schema);
-
-            options = options || {};
-
-            //----------------]>
-
-            if(typeof(schema) === "string") {
-                if(schema[0] == "?") {
-                    if(typeof(data) == "undefined")
-                        return undefined;
-
-                    schema = schema.substring(1);
-                }
-
-                return postNormilize(schema, normalize(schema, data, options), options);
-            }
-
-            if(typeof(schema) === "object") {
-                if(!data || typeof(data) !== "object")
-                    return null;
-
-                //----------------)>
-
-                var optScenario = options.on;
-
-                var result = {};
-
-                for(var field in schema) {
-                    if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
-
-                    var nameFunc,
-                        schemaData = schema[field],
-                        fieldData = data[field];
-
-                    //-----------------)>
-
-                    if(!schemaData) {
-                        throw new Error("[!] Sanitizer | schemaData: " + schemaData);
-                    }
-
-                    if(typeof(schemaData) === "string") {
-                        nameFunc = schemaData;
-                        schemaData = {};
-                    } else if(typeof(schemaData) === "object") {
-                        nameFunc = schemaData.type || schemaData.use;
-
-                        if(typeof(schemaData.on) !== "undefined" && schemaData.on != optScenario)
-                            continue;
-                    } else {
-                        throw new Error("[!] Sanitizer | schemaData: " + schemaData);
-                    }
-
-                    if(nameFunc[0] === "?") {
-                        if(typeof(fieldData) === "undefined")
-                            continue;
-
-                        nameFunc = nameFunc.substring(1);
-                    }
-
-                    //-----------------)>
-
-                    result[field] = postNormilize(nameFunc, normalize(nameFunc, fieldData, schemaData), schemaData);
-                }
-
-                return result;
-            }
-
-            //----------------]>
-
-            throw new Error("[!] Sanitizer | schema: " + schema);
-        },
-
-        "validate": function(schema, data, options) {
-            if(!schema)
-                throw new Error("[!] Validation | schema: " + schema);
-
-            options = options || {};
-
-            //----------------]>
-
-            if(typeof(schema) === "string") {
-                if(schema[0] == "?") {
-                    if(typeof(data) == "undefined")
-                        return true;
-
-                    schema = schema.substring(1);
-                }
-
-                return validation(schema, data, options, options.data);
-            }
-
-            //-------]>
-
-            if(typeof(schema) === "object") {
-                if(!data || typeof(data) !== "object")
-                    return false;
-
-                //----------------)>
-
-                var optScenario = options.on,
-                    optErrors   = options.errors;
-
-                var result = optErrors ? null : true;
-
-                for(var field in schema) {
-                    if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
-
-                    var nameFunc,
-
-                        schemaData  = schema[field],
-                        fieldData   = data[field];
-
-                    //-----------------)>
-
-                    if(!schemaData) {
-                        throw new Error("[!] Validation | schemaData: " + schemaData);
-                    }
-
-                    if(typeof(schemaData) === "string") {
-                        nameFunc = schemaData;
-                        schemaData = {};
-                    } else if(typeof(schemaData) === "object") {
-                        nameFunc = schemaData.rule || schemaData.use;
-
-                        if(typeof(schemaData.on) !== "undefined" && schemaData.on != optScenario)
-                            continue;
-                    } else {
-                        throw new Error("[!] Validation | schemaData: " + schemaData);
-                    }
-
-                    if(nameFunc[0] === "?") {
-                        if(typeof(fieldData) === "undefined")
-                            continue;
-
-                        nameFunc = nameFunc.substring(1);
-                    }
-
-                    //-----------------)>
-
-
-                    if(!validation(nameFunc, fieldData, schemaData, data)) {
-                        if(optErrors) {
-                            result = result || [];
-                            result.push({
-                                "field":    field,
-                                "use":      nameFunc,
-
-                                "input":    fieldData
-                            });
-                        } else {
-                            result = false;
-                            break;
-                        }
-                    }
-                }
-
-                return result;
-            }
-
-            //----------------]>
-
-            throw new Error("[!] Validation | schema: " + schema);
-        }
-    };
-
-    return gExport;
 })();
 
 //-----------------------------------------------------
