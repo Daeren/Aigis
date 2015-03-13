@@ -132,7 +132,7 @@ $validate(schema, data);
 | integer    		| -  								| default, min, max, enum, abs |
 | float    			| -  								| default, min, max, enum, abs |
 | date    			| -  								| default, min, max |
-| hashTable    		| -  								| - |
+| hashTable    		| -  								| schema |
 | array    			| -  								| max |
 | json    			| -  								| - |
 
