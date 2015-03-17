@@ -4,55 +4,9 @@
 ```js
 require("aigis");
 
-var schema = {
-        "name": {
-            "type": "string",
-            "rule": "required",
-
-            "max":  3,
-            "trim": true
-        },
-
-        "status": "?string",
-
-        "pts": {
-            "use": "integer",
-
-            "max":  30,
-            "abs":  true
-        },
-
-        "data": {
-            "type": "hashTable",
-
-            "schema": {
-                "login":    "string",
-                "password": "string",
-
-                "more": {
-                    "type": "hashTable",
-
-                    "schema": {
-                        "someData": "string"
-                    }
-                }
-            }
-        }
-    },
-
-    data = {"name": " XX + ", "pts": "-60", "delThisField": "data"};
-
-$typenize(schema, data);
-$sanitize(schema, data);
-$validate(schema, data);
-
-//_ $typenize:
-// { name: ' XX + ', pts: -60, data: { login: '', password: '', more: { someData: '' } } }
-
-//_ $sanitize:
-// { name: 'XX', pts: 30, data: { login: '', password: '', more: { someData: '' } } }
-
-//_ $validate: false
+$typenize({name: "string"}, {name: 969, "delThisField": "data"});
+$sanitize({name: {type: "string", max: 2}}, {name: "Omnomnomnus"});
+$validate("integer", "2");
 ```
 
 * Support schema-tree: +
@@ -199,6 +153,58 @@ Global var: `$aigis`
 
 ```js
 require("aigis");
+
+//-----------------------------------------------------
+
+var schema = {
+        "name": {
+            "type": "string",
+            "rule": "required",
+
+            "max":  3,
+            "trim": true
+        },
+
+        "status": "?string",
+
+        "pts": {
+            "use": "integer",
+
+            "max":  30,
+            "abs":  true
+        },
+
+        "data": {
+            "type": "hashTable",
+
+            "schema": {
+                "login":    "string",
+                "password": "string",
+
+                "more": {
+                    "type": "hashTable",
+
+                    "schema": {
+                        "someData": "string"
+                    }
+                }
+            }
+        }
+    },
+
+    data = {"name": " XX + ", "pts": "-60", "delThisField": "data"};
+
+$typenize(schema, data);
+$sanitize(schema, data);
+$validate(schema, data);
+
+//_ $typenize:
+// { name: ' XX + ', pts: -60, data: { login: '', password: '', more: { someData: '' } } }
+
+//_ $sanitize:
+// { name: 'XX', pts: 30, data: { login: '', password: '', more: { someData: '' } } }
+
+//_ $validate: false
 
 //-----------------------------------------------------
 

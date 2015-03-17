@@ -225,3 +225,31 @@ var schema  = {
 
 console.log("1#", $validate(schema, data));
 console.log("2#", $validate(schema, data, {"errors": true}));
+
+
+
+var schema = {
+    "info": {
+        "rule": "hashTable",
+
+        "schema": {
+
+            "login": {
+                "rule": "hashTable",
+
+                "schema": {
+                    "login": "string"
+                }
+            }
+
+        }
+    }
+};
+
+console.log(JSON.stringify({
+    "T0":   $validate(schema, {"info": {"login": {"login": 1}}}),
+    "T1":   $validate(schema, {"info": {}}),
+    "T2":   $validate(schema, {}),
+    "T3":   $validate(schema, {"info": {"login": {"login": 1}}}, {"errors": true}),
+    "T4":   $validate(schema, {"info": {"login": {"login": "test"}}})
+}, null, "\t"));

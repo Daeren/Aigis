@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.015
+// Version: 0.00.016
 //
 //-----------------------------------------------------
 
@@ -611,6 +611,10 @@ var $aigis = (function createInstance() {
             case "hashTable":
                 if(Array.isArray(input) || !input)
                     return false;
+
+                if(typeof(options.schema) === "object") {
+                    return gExport.validate(options.schema, input, options);
+                }
 
                 return typeof(input) === "object";
 
