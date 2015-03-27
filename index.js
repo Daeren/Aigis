@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.017
+// Version: 0.00.018
 //
 //-----------------------------------------------------
 
@@ -459,9 +459,9 @@ var $aigis = (function createInstance() {
                 if(options.trim)
                     input = input.trim();
                 else if(options.ltrim)
-                    input = input.replace(/^\s/g, "");
+                    input = input.replace(/^[\s\uFEFF\xA0]+/g, "");
                 else if(options.rtrim)
-                    input = input.replace(/\s$/g, "");
+                    input = input.replace(/[\s\uFEFF\xA0]+$/g, "");
 
                 //------------]>
 
@@ -473,7 +473,7 @@ var $aigis = (function createInstance() {
                 if(options.trim)
                     input = input.trim();
                 else if(options.rtrim)
-                    input = input.replace(/\s+$/g, "");
+                    input = input.replace(/[\s\uFEFF\xA0]+$/g, "");
 
                 //------------]>
 
