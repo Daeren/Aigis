@@ -446,12 +446,14 @@ console.log("| Validate");
 
 
     testV(false, "ip", "");
+    testV(false, "ip", "-100.005.055.0");
     testV(false, "ip", "100.005.055.");
     testV(false, "ip", "100.005.055.x");
     testV(false, "ip", "100.005.055.x88");
     testV(true, "ip", "100.005.055.88");
     testV(true, "ip", "3FFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF");
     testV(true, "ip", "2001:db8::7");
+    testV(true, "ip", "::");
     testV(false, "ip", "2001:xb8::7");
 
     testV(false, "ascii", "");

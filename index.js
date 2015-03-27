@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.016
+// Version: 0.00.017
 //
 //-----------------------------------------------------
 
@@ -118,18 +118,23 @@ var $aigis = (function createInstance() {
 
                         //-----------------)>
 
-                        if(typeof(schemaData) === "string") {
-                            nameFunc = schemaData;
-                            schemaData = {};
-                        }
-                        else if(typeof(schemaData) === "object") {
-                            nameFunc = schemaData.type || schemaData.use;
+                        switch(typeof(schemaData)) {
+                            case "string":
+                                nameFunc = schemaData;
+                                schemaData = {};
 
-                            if(typeof(schemaData.on) !== "undefined" && schemaData.on != optScenario)
-                                continue;
-                        }
-                        else {
-                            throw new Error("[!] Typenize | schemaData: " + schemaData);
+                                break;
+
+                            case "object":
+                                nameFunc = schemaData.type || schemaData.use;
+
+                                if(checkScenario(schemaData.on, optScenario))
+                                    continue;
+
+                                break;
+
+                            default:
+                                throw new Error("[!] Typenize | schemaData: " + schemaData);
                         }
 
                         if(nameFunc[0] === "?") {
@@ -173,18 +178,23 @@ var $aigis = (function createInstance() {
 
                         //-----------------)>
 
-                        if(typeof(schemaData) === "string") {
-                            nameFunc = schemaData;
-                            schemaData = {};
-                        }
-                        else if(typeof(schemaData) === "object") {
-                            nameFunc = schemaData.type || schemaData.use;
+                        switch(typeof(schemaData)) {
+                            case "string":
+                                nameFunc = schemaData;
+                                schemaData = {};
 
-                            if(typeof(schemaData.on) !== "undefined" && schemaData.on != optScenario)
-                                continue;
-                        }
-                        else {
-                            throw new Error("[!] Sanitize | schemaData: " + schemaData);
+                                break;
+
+                            case "object":
+                                nameFunc = schemaData.type || schemaData.use;
+
+                                if(checkScenario(schemaData.on, optScenario))
+                                    continue;
+
+                                break;
+
+                            default:
+                                throw new Error("[!] Sanitize | schemaData: " + schemaData);
                         }
 
                         if(nameFunc[0] === "?") {
@@ -230,18 +240,23 @@ var $aigis = (function createInstance() {
 
                         //-----------------)>
 
-                        if(typeof(schemaData) === "string") {
-                            nameFunc = schemaData;
-                            schemaData = {};
-                        }
-                        else if(typeof(schemaData) === "object") {
-                            nameFunc = schemaData.rule || schemaData.use;
+                        switch(typeof(schemaData)) {
+                            case "string":
+                                nameFunc = schemaData;
+                                schemaData = {};
 
-                            if(typeof(schemaData.on) !== "undefined" && schemaData.on != optScenario)
-                                continue;
-                        }
-                        else {
-                            throw new Error("[!] Validation | schemaData: " + schemaData);
+                                break;
+
+                            case "object":
+                                nameFunc = schemaData.rule || schemaData.use;
+
+                                if(checkScenario(schemaData.on, optScenario))
+                                    continue;
+
+                                break;
+
+                            default:
+                                throw new Error("[!] Validation | schemaData: " + schemaData);
                         }
 
                         if(nameFunc[0] === "?") {
@@ -434,6 +449,13 @@ var $aigis = (function createInstance() {
 
                 //------------]>
 
+                if(options.onlyDigits)
+                    input = input.replace(/\D/g, "");
+                else if(options.onlyAlphanumeric)
+                    input = input.replace(/[\W_]/g, "");
+                else if(options.onlyWordchar)
+                    input = input.replace(/\W/g, "");
+
                 if(options.trim)
                     input = input.trim();
                 else if(options.ltrim)
@@ -445,13 +467,6 @@ var $aigis = (function createInstance() {
 
                 if(typeof(options.max) !== "undefined" && input.length > options.max)
                     input = input.substring(0, options.max);
-
-                if(options.onlyDigits)
-                    input = input.replace(/\D/g, "");
-                else if(options.onlyAlphanumeric)
-                    input = input.replace(/[\W_]/g, "");
-                else if(options.onlyWordchar)
-                    input = input.replace(/\W/g, "");
 
                 //------------]>
 
@@ -570,10 +585,10 @@ var $aigis = (function createInstance() {
                     return false;
 
                 return !(
-                (typeof(options.min) !== "undefined" && input.length < options.min) ||
-                (typeof(options.max) !== "undefined" && input.length > options.max) ||
-                (typeof(options.pattern) !== "undefined" && !options.pattern.test(input)) ||
-                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
+                    (typeof(options.min) !== "undefined" && input.length < options.min) ||
+                    (typeof(options.max) !== "undefined" && input.length > options.max) ||
+                    (typeof(options.pattern) !== "undefined" && !options.pattern.test(input)) ||
+                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                 );
 
             case "integer":
@@ -581,11 +596,11 @@ var $aigis = (function createInstance() {
                     return false;
 
                 return !(
-                (input !== parseInt(input, 10)) ||
-                (typeof(options.min) !== "undefined" && input < options.min) ||
-                (typeof(options.max) !== "undefined" && input > options.max) ||
-                (typeof(options.divisibleBy) !== "undefined" && (input % options.divisibleBy) !== 0) ||
-                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
+                    (input !== parseInt(input, 10)) ||
+                    (typeof(options.min) !== "undefined" && input < options.min) ||
+                    (typeof(options.max) !== "undefined" && input > options.max) ||
+                    (typeof(options.divisibleBy) !== "undefined" && (input % options.divisibleBy) !== 0) ||
+                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                 );
 
             case "float":
@@ -593,10 +608,10 @@ var $aigis = (function createInstance() {
                     return false;
 
                 return !(
-                (typeof(options.min) !== "undefined" && input < options.min) ||
-                (typeof(options.max) !== "undefined" && input > options.max) ||
-                (typeof(options.divisibleBy) !== "undefined" && (input % options.divisibleBy) !== 0) ||
-                (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
+                    (typeof(options.min) !== "undefined" && input < options.min) ||
+                    (typeof(options.max) !== "undefined" && input > options.max) ||
+                    (typeof(options.divisibleBy) !== "undefined" && (input % options.divisibleBy) !== 0) ||
+                    (typeof(options.enum) !== "undefined" && options.enum.indexOf(input) === -1)
                 );
 
             case "date":
@@ -604,8 +619,8 @@ var $aigis = (function createInstance() {
                     return false;
 
                 return !(
-                (typeof(options.min) !== "undefined" && input < options.min) ||
-                (typeof(options.max) !== "undefined" && input > options.max)
+                    (typeof(options.min) !== "undefined" && input < options.min) ||
+                    (typeof(options.max) !== "undefined" && input > options.max)
                 );
 
             case "hashTable":
@@ -623,8 +638,8 @@ var $aigis = (function createInstance() {
                     return false;
 
                 return !(
-                (typeof(options.min) !== "undefined" && input.length < options.min) ||
-                (typeof(options.max) !== "undefined" && input.length > options.max)
+                    (typeof(options.min) !== "undefined" && input.length < options.min) ||
+                    (typeof(options.max) !== "undefined" && input.length > options.max)
                 );
 
             case "json":
@@ -633,12 +648,16 @@ var $aigis = (function createInstance() {
             //-----------------------]>
 
             case "required":
-                return !(
-                input === null || typeof(input) === "undefined" ||
-                (typeof(input) === "number" && input !== input) ||
-                (typeof(input) === "string" && !input.length) ||
-                (input instanceof(Date) && !input.getTime())
-                );
+                switch(typeof(input)) {
+                    case "number": return !isNaN(input);
+                    case "string": return input.length > 0;
+
+                    default:
+                        if(input instanceof(Date))
+                            return !!input.getTime();
+                }
+
+                return false;
 
             case "equal":
                 var d;
@@ -769,36 +788,20 @@ var $aigis = (function createInstance() {
 
                 return pattern.test(input);
 
+            //------------------------]>
+
+            case "ip.v4":
+                return typeof(input) === "string" && (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/).test(input);
+
+            case "ip.v6":
+                return typeof(input) === "string" && (/^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/).test(input);
+
             case "ip":
-                if(!input || typeof(input) !== "string")
-                    return false;
+                var version = options.version;
 
-                ///---)>
+                return version ? $validate("ip.v" + version, input) : ($validate("ip.v4", input) || $validate("ip.v6", input));
 
-                var version = options.version,
-                    ipV4 = function() {
-                        if((/^(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)\.(\d?\d?\d)$/).test(input)) {
-                            var parts = input.split(".").sort();
-                            // no need to check for < 0 as regex won't match in that case
-                            return !(parts[3] > 255);
-                        }
-                    };
-
-                ///---)>
-
-                if(version && version != 4 && version != 6)
-                    return false;
-
-                if(!version && !ipV4() && !(/^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/).test(input))
-                    return false;
-
-                if(version == 4 && !ipV4())
-                    return false;
-
-                if(version == 6 && !(/^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/).test(input))
-                    return false;
-
-                return true;
+            //------------------------]>
 
             case "ascii":
                 return typeof(input) === "string" && (/^[\x00-\x7F]+$/).test(input);
@@ -869,6 +872,19 @@ var $aigis = (function createInstance() {
         //----------------]>
 
         throw new Error("[!] Invalid schema.");
+    }
+
+    function checkScenario(x, y) {
+        switch(typeof(x)) {
+            case "undefined": return false;
+            case "string": return x !== y;
+
+            default:
+                if(Array.isArray(x))
+                    return x.indexOf(y) === -1;
+        }
+
+        throw new Error("[!] checkScenario: strange type - " + x);
     }
 
     function wFuncStore(name, func, store) {

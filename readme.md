@@ -92,7 +92,7 @@ $validate("integer", "2");
 
 ```
 String:
-default (stop chain) -> enum (stop chain) -> [l|r]trim -> max -> only[Digits|Alphanumeric|Wordchar] -> [r]trim -> [uppercase|lowercase] -> escape
+default (stop chain) -> enum (stop chain) -> only[Digits|Alphanumeric|Wordchar] -> [l|r]trim  -> max -> [r]trim -> [uppercase|lowercase] -> escape
 
 Number:
 default (stop chain) -> enum (stop chain) -> abs -> min -> max
@@ -136,8 +136,12 @@ default (stop chain) -> enum (stop chain) -> abs -> min -> max
 | hexColor    		| -  																									| strict (def: false) |
 | creditcard    	| Visa, MasterCard, American Express, Discover, Diners Club, and JCB card  								| - |
 | phone    			| `ru-RU`, `zh-CN`, `en-ZA`, `en-AU`, `en-HK`, `fr-FR`, `pt-PT`, `el-GR`  								| locale (def: "ru-RU") |
-| uuid    			| -  								| version (def: 3,4,5) |
-| ip    			| -  								| version (def: 4,6) |
+| uuid    			| -  																									| version (def: 3,4,5) |
+|               	| -           ||
+| ip    			| This function simply check whether the address is a valid IPv4 or IPv6 address  						| version (def: 4,6) |
+| ip.v4    			| -  								| - |
+| ip.v6    			| -  								| - |
+|               	| -           ||
 | ascii    			| -  								| - |
 | base64    		| -  								| - |
 

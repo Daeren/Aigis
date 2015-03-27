@@ -55,14 +55,10 @@ var schema = {
 
     data = {"name": " XX + ", "pts": "-60", "delThisField": "data"};
 
-$typenize(schema, data); //_ { name: ' XX + ', pts: -60 }
-$sanitize(schema, data); //_ { name: 'XX', pts: 30 }
-$validate(schema, data); //_ false
-
 console.log(JSON.stringify({
-    "T0":   $typenize(schema, data),
-    "T1":   $sanitize(schema, data),
-    "T2":   $validate(schema, data)
+    "T0":   $typenize(schema, data), //_ { name: ' XX + ', pts: -60,  ...}
+    "T1":   $sanitize(schema, data), //_ { name: 'XX', pts: 30, ... }
+    "T2":   $validate(schema, data) //_ false
 }, null, "\t"));
 
 
