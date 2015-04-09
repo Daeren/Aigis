@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.019
+// Version: 0.00.020
 //
 //-----------------------------------------------------
 
@@ -95,7 +95,7 @@ var $aigis = (function createInstance() {
         //--------]>
 
         "typenize": function(schema, data, options) {
-            return parseSchema(C_MODE_TYPENIZE, schema, data, options, {
+            return runSchema(C_MODE_TYPENIZE, schema, data, options, {
                 "string": function(schema, data, options) {
                     return $typenize(schema, data, options);
                 },
@@ -160,9 +160,9 @@ var $aigis = (function createInstance() {
         },
 
         "sanitize": function(schema, data, options) {
-            return parseSchema(C_MODE_SANITIZE, schema, data, options, {
+            return runSchema(C_MODE_SANITIZE, schema, data, options, {
                 "string": function(schema, data, options) {
-                    return $sanitize(schema, $typenize(schema, data, options), options);
+                    return $sanitize(schema, $typenize(schema, data, options, true), options);
                 },
 
                 "hashTable": function(schema, data, options) {
@@ -216,7 +216,7 @@ var $aigis = (function createInstance() {
 
                         //-----------------)>
 
-                        result[field] = $sanitize(nameFunc, $typenize(nameFunc, fieldData, schemaData), schemaData);
+                        result[field] = $sanitize(nameFunc, $typenize(nameFunc, fieldData, schemaData, true), schemaData);
                     }
 
                     return result;
@@ -225,7 +225,7 @@ var $aigis = (function createInstance() {
         },
 
         "validate": function(schema, data, options) {
-            return parseSchema(C_MODE_VALIDATE, schema, data, options, {
+            return runSchema(C_MODE_VALIDATE, schema, data, options, {
                 "string": function(schema, data, options) {
                     return $validate(schema, data, options, options.data);
                 },
@@ -340,7 +340,7 @@ var $aigis = (function createInstance() {
 
     //-----------------------------]>
 
-    function $typenize(type, input, options) {
+    function $typenize(type, input, options, isUseSanitize) {
         if(type === "custom")
             return input;
 
@@ -387,41 +387,43 @@ var $aigis = (function createInstance() {
                 return new Date(input);
 
             case "hashTable":
-                if(!input || Array.isArray(input))
-                    input = {};
+                if(input && typeof(input) === "string") {
+                    try {
+                        input = JSON.parse(input);
+                    } catch(e) { }
+                }
+
+                input = input && typeof(input) === "object" && !Array.isArray(input) ? input : {};
 
                 if(typeof(options.schema) === "object") {
-                    return gExport.typenize(options.schema, input, options);
+                    return gExport[isUseSanitize ? "sanitize" : "typenize"](options.schema, input, options);
                 }
 
-                if(typeof(input) === "object")
-                    return input;
-
-                if(typeof(input) !== "string")
-                    return {};
-
-                try {
-                    input = JSON.parse(input);
-                    return Array.isArray(input) ? {} : input;
-                } catch(e) {
-                }
-
-                return {};
+                return input;
 
             case "array":
-                if(Array.isArray(input))
-                    return input;
-
-                if(!input || typeof(input) !== "string")
-                    return [];
-
-                try {
-                    input = JSON.parse(input);
-                    return Array.isArray(input) ? input : [];
-                } catch(e) {
+                if(input && typeof(input) === "string") {
+                    try {
+                        input = JSON.parse(input);
+                    } catch(e) { }
                 }
 
-                return [];
+                input = Array.isArray(input) ? input : [];
+
+                if(Array.isArray(options.schema)) {
+                    var result = isUseSanitize ? [] : input,
+
+                        func = gExport[isUseSanitize ? "sanitize" : "typenize"],
+                        sch = options.schema;
+
+                    for(var i = sch.length - 1; i >= 0; i--) {
+                        result[i] = func(sch[i], input[i], options);
+                    }
+
+                    return result;
+                }
+
+                return input;
 
             case "json":
                 if(typeof(input) === "object")
@@ -838,7 +840,7 @@ var $aigis = (function createInstance() {
 
     //-------[HELPERS]-------}>
 
-    function parseSchema(mode, schema, data, options, callbacks) {
+    function runSchema(mode, schema, data, options, callbacks) {
         if(!schema)
             throw new Error("[!] Empty schema.");
 

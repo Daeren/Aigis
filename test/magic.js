@@ -13,6 +13,83 @@ require("../index");
 
 //-----------------------------------------------------
 
+
+var data = {
+    "data": [2.2, "name", 100]
+};
+
+console.log(
+    $typenize({"data": {"type": "array", "schema": ["integer", "string"]}}, data)
+);
+console.log(
+    $sanitize({"data": {"type": "array", "schema": ["integer", "string"]}}, data)
+);
+
+//-----------]>
+
+var data = {
+    "data": [{"pts": 2.2}, "name"]
+};
+
+console.log(
+    $typenize({"data": {"type": "array", "schema": [{"pts": "integer"}]}}, data)
+);
+console.log(
+    $sanitize({"data": {"type": "array", "schema": [{"pts": "integer"}]}}, data)
+);
+
+console.log("\n\n");
+
+//-----------]>
+
+
+var schema = {
+    "data": {
+        "type": "hashTable",
+
+        "schema": {
+            "login":    "string",
+            "password": "string",
+
+            "more": {
+                "type": "hashTable",
+
+                "schema": {
+                    "someData": "string"
+                }
+            }
+        }
+    }
+};
+
+var data = {
+    "test": 1,
+    "data": JSON.stringify({
+        "login": 1,
+        "tex": 2
+    })
+};
+
+console.log($sanitize(schema, data));
+console.log($typenize(schema, data));
+console.log("\n\n");
+
+var data = {
+    "test": 1,
+    "data": {
+        "login": 1,
+        "tex": 2
+    }
+};
+
+console.log($typenize(schema, data));
+console.log($sanitize(schema, data));
+console.log("\n\n");
+
+
+//-----------------------------------------------------
+
+
 console.log("+-------------------------+");
 console.log("| Schema");
 console.log("+-------------------------+");
