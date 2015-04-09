@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.018
+// Version: 0.00.019
 //
 //-----------------------------------------------------
 
@@ -103,7 +103,7 @@ var $aigis = (function createInstance() {
                 "hashTable": function(schema, data, options) {
                     var optScenario = options.on;
 
-                    var result = {};
+                    var result = data;
 
                     for(var field in schema) {
                         if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
@@ -137,11 +137,16 @@ var $aigis = (function createInstance() {
                                 throw new Error("[!] Typenize | schemaData: " + schemaData);
                         }
 
-                        if(nameFunc[0] === "?") {
-                            if(typeof(fieldData) === "undefined")
-                                continue;
+                        switch(typeof(nameFunc)) {
+                            case "string":
+                                if(nameFunc[0] === "?") {
+                                    if(typeof(fieldData) === "undefined")
+                                        continue;
 
-                            nameFunc = nameFunc.substring(1);
+                                    nameFunc = nameFunc.substring(1);
+                                }
+
+                                break;
                         }
 
                         //-----------------)>
@@ -197,11 +202,16 @@ var $aigis = (function createInstance() {
                                 throw new Error("[!] Sanitize | schemaData: " + schemaData);
                         }
 
-                        if(nameFunc[0] === "?") {
-                            if(typeof(fieldData) === "undefined")
-                                continue;
+                        switch(typeof(nameFunc)) {
+                            case "string":
+                                if(nameFunc[0] === "?") {
+                                    if(typeof(fieldData) === "undefined")
+                                        continue;
 
-                            nameFunc = nameFunc.substring(1);
+                                    nameFunc = nameFunc.substring(1);
+                                }
+
+                                break;
                         }
 
                         //-----------------)>
@@ -259,11 +269,16 @@ var $aigis = (function createInstance() {
                                 throw new Error("[!] Validation | schemaData: " + schemaData);
                         }
 
-                        if(nameFunc[0] === "?") {
-                            if(typeof(fieldData) === "undefined")
-                                continue;
+                        switch(typeof(nameFunc)) {
+                            case "string":
+                                if(nameFunc[0] === "?") {
+                                    if(typeof(fieldData) === "undefined")
+                                        continue;
 
-                            nameFunc = nameFunc.substring(1);
+                                    nameFunc = nameFunc.substring(1);
+                                }
+
+                                break;
                         }
 
                         //-----------------)>

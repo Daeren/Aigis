@@ -57,8 +57,9 @@ var schema = {
 
 console.log(JSON.stringify({
     "T0":   $typenize(schema, data), //_ { name: ' XX + ', pts: -60,  ...}
-    "T1":   $sanitize(schema, data), //_ { name: 'XX', pts: 30, ... }
-    "T2":   $validate(schema, data) //_ false
+    "T1":   $sanitize(schema, data) //_ { name: 'XX', pts: 30, ... }
+
+    //"T2":   $validate(schema, data) //_ error ("data" without "rule")
 }, null, "\t"));
 
 
@@ -171,9 +172,10 @@ var schema  = {
     },
     data    = {"name": " XX + ", "pts": "-60", "delThisField": "data"};
 
-console.log("0#", $sanitize(schema, data));
-console.log("1#", $validate(schema, data));
-console.log("2#", $validate(schema, $sanitize(schema, data)));
+console.log("0#", $typenize(schema, data));
+console.log("1#", $sanitize(schema, data));
+console.log("2#", $validate(schema, data));
+console.log("3#", $validate(schema, $sanitize(schema, data)));
 
 
 

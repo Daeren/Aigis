@@ -4,8 +4,8 @@
 ```js
 require("aigis");
 
-$typenize({name: "string"}, {name: 969, "delThisField": "data"});
-$sanitize({name: {type: "string", max: 2}}, {name: "Omnomnomnus"});
+$typenize({name: "string"}, {name: 969, "skipThisField": "data"});
+$sanitize({name: {type: "string", max: 2}}, {name: "Omnomnomnus", "delThisField": "data"});
 $validate("integer", "2");
 ```
 
@@ -36,7 +36,7 @@ $validate("integer", "2");
 | validate    		| -								   									| (schema (String/HashTable), data, [options]) 		|
 
 
-| Options     | Desc        | Val 			|
+| Options     | Desc        | Val 		  |
 |-------------|-------------|-------------|
 |             | -           ||
 |             | ALL         ||
@@ -59,8 +59,8 @@ $validate("integer", "2");
 
 #### Typenize
 
-| Type     	  | Desc        | Params/Options 			|
-|-------------|-------------|-------------|	
+| Type     	  | Desc        | Params/Options |
+|-------------|-------------|----------------|
 |             	| -           ||
 |               | ALL (If `schema` is HashTable)    | on |
 | custom    	| -  								||
@@ -76,9 +76,9 @@ $validate("integer", "2");
 
 #### Sanitize
 
-| Type     	| Desc        | Params/Options 			|
-|-------------|-------------|-------------|	
-|             | -           ||
+| Type     	  | Desc        | Params/Options |
+|-------------|-------------|----------------|
+|             		| -           ||
 |               	| ALL (If `schema` is HashTable)    | on |
 | custom    		| -  								| - |
 | boolean    		| true: "true", "on", "yes", "1"  	| - |
@@ -130,7 +130,7 @@ default (stop chain) -> enum (stop chain) -> abs -> min -> max
 | numeric    		| If string is only numbers  												| - |
 | hexadecimal    	| -  																		| - |
 | email    			| - 																		| - |
-| url    			| Mailto, http, https, ftp, ssh, ws, gopher, news, telnet, ldap  			| - |
+| url    			| mailto, http, https, ftp, ssh, ws, gopher, news, telnet, ldap  			| - |
 | mongoId    		| -  																		| - |
 |               	| -           ||
 | hexColor    		| -  																									| strict (def: false) |
@@ -292,6 +292,9 @@ var schema  = {
     },
     data    = {"name": "DT", "pts": "32", "pswd": "/\\s+/g", "pswdCheck": /\s+/g}; //_ #1
     //data    = {"name": "DT", "pts": "32", "pswd": "", "pswdCheck": /\w+/g}; //_ #2
+	
+console.log("1#", $validate(schema, data));
+console.log("2#", $validate(schema, data, {"errors": true}));
 ```
 
 #### 3# of the fundamental modules
