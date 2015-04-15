@@ -4,12 +4,14 @@
 ```js
 require("aigis");
 
-$typenize({name: "string"}, {name: 969, "skipThisField": "data"});
+$typenize({name: "string"}, {name: 13, "skipThisField": "data"});
 $sanitize({name: {type: "string", max: 2}}, {name: "Omnomnomnus", "delThisField": "data"});
 $validate("integer", "2");
+
+$sanitize({"data": {"type": "array", "schema": ["integer", "string"]}}, {"data": [6.9, "name", 100]});
 ```
 
-* Support schema-tree: +
+* Schema-tree (hashTable, array): +
 * Tests: +
 * Examples: +
 * Browser: +
@@ -70,7 +72,7 @@ $validate("integer", "2");
 | float    		| -  								||
 | date    		| -  								||
 | hashTable    	| -  								| schema |
-| array    		| -  								||
+| array    		| -  								| schema |
 | json    		| -  								||
 
 
@@ -82,12 +84,12 @@ $validate("integer", "2");
 |               	| ALL (If `schema` is HashTable)    | on |
 | custom    		| -  								| - |
 | boolean    		| true: "true", "on", "yes", "1"  	| - |
-| string    		| -  								| default, max, trim, ltrim, rtrim, escape, lowercase, uppercase, onlyDigits, onlyAlphanumeric, onlyWordchar |
-| integer    		| -  								| default, min, max, enum, abs |
-| float    			| -  								| default, min, max, enum, abs |
+| string    		| -  								| default, enum, max, trim, ltrim, rtrim, escape, lowercase, uppercase, onlyDigits, onlyAlphanumeric, onlyWordchar |
+| integer    		| -  								| default, enum, min, max, abs |
+| float    			| -  								| default, enum, min, max, abs |
 | date    			| -  								| default, min, max |
 | hashTable    		| -  								| schema |
-| array    			| -  								| max |
+| array    			| -  								| schema, max |
 | json    			| -  								| - |
 
 ```

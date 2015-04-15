@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.020
+// Version: 0.00.021
 //
 //-----------------------------------------------------
 
@@ -309,6 +309,10 @@ var $aigis = (function createInstance() {
 
     ["set", "get", "run"]
         .forEach(function(name) {
+            gExport.typenize[name] = buildFunc(gExport.typenize, typenizeSchemaStore);
+            gExport.sanitize[name] = buildFunc(gExport.sanitize, sanitizeSchemaStore);
+            gExport.validate[name] = buildFunc(gExport.validate, validateSchemaStore);
+
             function buildFunc(obj, store) {
                 switch(name) {
                     case "set":
@@ -328,10 +332,6 @@ var $aigis = (function createInstance() {
                         };
                 }
             }
-
-            gExport.typenize[name] = buildFunc(gExport.typenize, typenizeSchemaStore);
-            gExport.sanitize[name] = buildFunc(gExport.sanitize, sanitizeSchemaStore);
-            gExport.validate[name] = buildFunc(gExport.validate, validateSchemaStore);
         });
 
     //------------------)>
@@ -644,9 +644,8 @@ var $aigis = (function createInstance() {
                 if(Array.isArray(input) || !input)
                     return false;
 
-                if(typeof(options.schema) === "object") {
+                if(typeof(options.schema) === "object")
                     return gExport.validate(options.schema, input, options);
-                }
 
                 return typeof(input) === "object";
 
@@ -779,7 +778,7 @@ var $aigis = (function createInstance() {
                 if(!input || typeof(input) !== "string")
                     return false;
 
-                ///---)>
+                //---)>
 
                 var rgPhone = gVPhones[options.locale || "ru-RU"];
 
@@ -789,7 +788,7 @@ var $aigis = (function createInstance() {
                 if(!input || typeof(input) !== "string")
                     return false;
 
-                ///---)>
+                //---)>
 
                 var version = options.version,
                     pattern;
@@ -807,16 +806,16 @@ var $aigis = (function createInstance() {
 
             //------------------------]>
 
+            case "ip":
+                var version = options.version;
+
+                return version ? $validate("ip.v" + version, input) : ($validate("ip.v4", input) || $validate("ip.v6", input));
+
             case "ip.v4":
                 return typeof(input) === "string" && (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/).test(input);
 
             case "ip.v6":
                 return typeof(input) === "string" && (/^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/).test(input);
-
-            case "ip":
-                var version = options.version;
-
-                return version ? $validate("ip.v" + version, input) : ($validate("ip.v4", input) || $validate("ip.v6", input));
 
             //------------------------]>
 
@@ -932,6 +931,6 @@ var $aigis = (function createInstance() {
 
 //-----------------------------------------------------
 
-if(typeof(module) == "object") {
+if(module && typeof(module) == "object") {
     module.exports = $aigis.global(true);
 }
