@@ -354,7 +354,7 @@ var $aigis = (function createInstance() {
                 if(typeof(input) === "string")
                     return input === "true" || input === "on" || input === "yes" || input === "1";
 
-                return false;
+                return input === 1;
 
             case "string":
                 if(typeof(input) === "string")
