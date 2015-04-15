@@ -8,7 +8,7 @@ $typenize({name: "string"}, {name: 13, "skipThisField": "data"});
 $sanitize({name: {type: "string", max: 2}}, {name: "Omnomnomnus", "delThisField": "data"});
 $validate("integer", "2");
 
-$sanitize({"data": {"type": "array", "schema": ["integer", "string"]}}, {"data": [6.9, "name", 100]});
+$sanitize("array", [6.9, "name", "delThisElem"], {"schema": ["integer", "string"]})
 ```
 
 * Schema-tree (hashTable, array): +

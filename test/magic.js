@@ -14,7 +14,7 @@ require("../index");
 //-----------------------------------------------------
 
 var data = {
-    "data": [2.2, "name", 100]
+    "data": [2.2, "name", "[skip/del]ThisElem"]
 };
 
 console.log(
@@ -22,6 +22,14 @@ console.log(
 );
 console.log(
     $sanitize({"data": {"type": "array", "schema": ["integer", "string"]}}, data)
+);
+
+//-----------]>
+
+var data = [6.9, "name", "delThisElem"];
+
+console.log(
+    $sanitize("array", data, {"schema": ["integer", "string"]})
 );
 
 //-----------]>
