@@ -372,11 +372,33 @@ var $aigis = (function createInstance() {
                 return input + "";
 
             case "integer":
+                if(input instanceof(Date)) {
+                    if(typeof(input.valueOf) === "function")
+                        input = input.valueOf(); else return NaN;
+                }
+
+                switch(typeof(input)) {
+                    case "undefined": return NaN;
+
+                    default:
+                        if(input === null) return NaN;
+                }
+
                 return parseInt(input, options.radix || 10);
 
             case "float":
-                if(typeof(input) === "number")
-                    return input;
+                if(input instanceof(Date)) {
+                    if(typeof(input.valueOf) === "function")
+                        input = input.valueOf(); else return NaN;
+                }
+
+                switch(typeof(input)) {
+                    case "number": return input;
+                    case "undefined": return NaN;
+
+                    default:
+                        if(input === null) return NaN;
+                }
 
                 return parseFloat(input);
 

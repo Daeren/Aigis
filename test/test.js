@@ -174,6 +174,7 @@ console.log("| Sanitize");
     testS(10, "integer", 10.5);
     testS(10, "integer", "10");
     testS(NaN, "integer", "");
+    testS(date.valueOf(), "integer", date);
 
     testS(NaN, "float", undefined);
     testS(NaN, "float", null);
@@ -182,6 +183,7 @@ console.log("| Sanitize");
     testS(10.5, "float", 10.5);
     testS(10, "float", "10");
     testS(NaN, "float", "");
+    testS(date.valueOf(), "float", date);
 
     testS(new Date(NaN), "date", undefined);
     testS(new Date(NaN), "date", null);
