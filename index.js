@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.021
+// Version: 0.00.022
 //
 //-----------------------------------------------------
 
@@ -95,213 +95,15 @@ var $aigis = (function createInstance() {
         //--------]>
 
         "typenize": function(schema, data, options) {
-            return runSchema(C_MODE_TYPENIZE, schema, data, options, {
-                "string": function(schema, data, options) {
-                    return $typenize(schema, data, options);
-                },
-
-                "hashTable": function(schema, data, options) {
-                    var optScenario = options.on;
-
-                    var result = data;
-
-                    for(var field in schema) {
-                        if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
-
-                        var nameFunc,
-                            schemaData = schema[field],
-                            fieldData = data[field];
-
-                        if(!schemaData) {
-                            throw new Error("[!] Typenize | schemaData: " + schemaData);
-                        }
-
-                        //-----------------)>
-
-                        switch(typeof(schemaData)) {
-                            case "string":
-                                nameFunc = schemaData;
-                                schemaData = {};
-
-                                break;
-
-                            case "object":
-                                nameFunc = schemaData.type || schemaData.use;
-
-                                if(checkScenario(schemaData.on, optScenario))
-                                    continue;
-
-                                break;
-
-                            default:
-                                throw new Error("[!] Typenize | schemaData: " + schemaData);
-                        }
-
-                        switch(typeof(nameFunc)) {
-                            case "string":
-                                if(nameFunc[0] === "?") {
-                                    if(typeof(fieldData) === "undefined")
-                                        continue;
-
-                                    nameFunc = nameFunc.substring(1);
-                                }
-
-                                break;
-                        }
-
-                        //-----------------)>
-
-                        result[field] = $typenize(nameFunc, fieldData, schemaData);
-                    }
-
-                    return result;
-                }
-            });
+            return runSchema(C_MODE_TYPENIZE, schema, data, options, $typenize, $typenizeHashTable);
         },
 
         "sanitize": function(schema, data, options) {
-            return runSchema(C_MODE_SANITIZE, schema, data, options, {
-                "string": function(schema, data, options) {
-                    return $sanitize(schema, $typenize(schema, data, options, true), options);
-                },
-
-                "hashTable": function(schema, data, options) {
-                    var optScenario = options.on;
-
-                    var result = {};
-
-                    for(var field in schema) {
-                        if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
-
-                        var nameFunc,
-                            schemaData = schema[field],
-                            fieldData = data[field];
-
-                        if(!schemaData) {
-                            throw new Error("[!] Sanitize | schemaData: " + schemaData);
-                        }
-
-                        //-----------------)>
-
-                        switch(typeof(schemaData)) {
-                            case "string":
-                                nameFunc = schemaData;
-                                schemaData = {};
-
-                                break;
-
-                            case "object":
-                                nameFunc = schemaData.type || schemaData.use;
-
-                                if(checkScenario(schemaData.on, optScenario))
-                                    continue;
-
-                                break;
-
-                            default:
-                                throw new Error("[!] Sanitize | schemaData: " + schemaData);
-                        }
-
-                        switch(typeof(nameFunc)) {
-                            case "string":
-                                if(nameFunc[0] === "?") {
-                                    if(typeof(fieldData) === "undefined")
-                                        continue;
-
-                                    nameFunc = nameFunc.substring(1);
-                                }
-
-                                break;
-                        }
-
-                        //-----------------)>
-
-                        result[field] = $sanitize(nameFunc, $typenize(nameFunc, fieldData, schemaData, true), schemaData);
-                    }
-
-                    return result;
-                }
-            });
+            return runSchema(C_MODE_SANITIZE, schema, data, options, $sanitizeString, $sanitizeHashTable);
         },
 
         "validate": function(schema, data, options) {
-            return runSchema(C_MODE_VALIDATE, schema, data, options, {
-                "string": function(schema, data, options) {
-                    return $validate(schema, data, options, options.data);
-                },
-
-                "hashTable": function(schema, data, options) {
-                    var optScenario = options.on,
-                        optErrors   = options.errors;
-
-                    var result = optErrors ? null : true;
-
-                    for(var field in schema) {
-                        if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
-
-                        var nameFunc,
-
-                            schemaData  = schema[field],
-                            fieldData   = data[field];
-
-                        if(!schemaData) {
-                            throw new Error("[!] Validation | schemaData: " + schemaData);
-                        }
-
-                        //-----------------)>
-
-                        switch(typeof(schemaData)) {
-                            case "string":
-                                nameFunc = schemaData;
-                                schemaData = {};
-
-                                break;
-
-                            case "object":
-                                nameFunc = schemaData.rule || schemaData.use;
-
-                                if(checkScenario(schemaData.on, optScenario))
-                                    continue;
-
-                                break;
-
-                            default:
-                                throw new Error("[!] Validation | schemaData: " + schemaData);
-                        }
-
-                        switch(typeof(nameFunc)) {
-                            case "string":
-                                if(nameFunc[0] === "?") {
-                                    if(typeof(fieldData) === "undefined")
-                                        continue;
-
-                                    nameFunc = nameFunc.substring(1);
-                                }
-
-                                break;
-                        }
-
-                        //-----------------)>
-
-                        if(!$validate(nameFunc, fieldData, schemaData, data)) {
-                            if(optErrors) {
-                                result = result || [];
-                                result.push({
-                                    "field":    field,
-                                    "use":      nameFunc,
-
-                                    "input":    fieldData
-                                });
-                            } else {
-                                result = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    return result;
-                }
-            });
+            return runSchema(C_MODE_VALIDATE, schema, data, options, $validateString, $validateHashTable);
         }
     };
 
@@ -339,6 +141,206 @@ var $aigis = (function createInstance() {
     return gExport;
 
     //-----------------------------]>
+
+    function $typenizeHashTable(schema, data, options) {
+        var optScenario = options.on;
+
+        var result = data;
+
+        for(var field in schema) {
+            if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
+
+            var nameFunc,
+                schemaData = schema[field],
+                fieldData = data[field];
+
+            if(!schemaData) {
+                throw new Error("[!] Typenize | schemaData: " + schemaData);
+            }
+
+            //-----------------)>
+
+            switch(typeof(schemaData)) {
+                case "string":
+                    nameFunc = schemaData;
+                    schemaData = {};
+
+                    break;
+
+                case "object":
+                    nameFunc = schemaData.type || schemaData.use;
+
+                    if(checkScenario(schemaData.on, optScenario))
+                        continue;
+
+                    break;
+
+                default:
+                    throw new Error("[!] Typenize | schemaData: " + schemaData);
+            }
+
+            switch(typeof(nameFunc)) {
+                case "string":
+                    if(nameFunc[0] === "?") {
+                        if(typeof(fieldData) === "undefined")
+                            continue;
+
+                        nameFunc = nameFunc.substring(1);
+                    }
+
+                    break;
+            }
+
+            //-----------------)>
+
+            result[field] = $typenize(nameFunc, fieldData, schemaData);
+        }
+
+        return result;
+    }
+
+    //-----)>
+
+    function $sanitizeString(schema, data, options) {
+        return $sanitize(schema, $typenize(schema, data, options, true), options);
+    }
+
+    function $sanitizeHashTable(schema, data, options) {
+        var optScenario = options.on;
+
+        var result = {};
+
+        for(var field in schema) {
+            if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
+
+            var nameFunc,
+                schemaData = schema[field],
+                fieldData = data[field];
+
+            if(!schemaData) {
+                throw new Error("[!] Sanitize | schemaData: " + schemaData);
+            }
+
+            //-----------------)>
+
+            switch(typeof(schemaData)) {
+                case "string":
+                    nameFunc = schemaData;
+                    schemaData = {};
+
+                    break;
+
+                case "object":
+                    nameFunc = schemaData.type || schemaData.use;
+
+                    if(checkScenario(schemaData.on, optScenario))
+                        continue;
+
+                    break;
+
+                default:
+                    throw new Error("[!] Sanitize | schemaData: " + schemaData);
+            }
+
+            switch(typeof(nameFunc)) {
+                case "string":
+                    if(nameFunc[0] === "?") {
+                        if(typeof(fieldData) === "undefined")
+                            continue;
+
+                        nameFunc = nameFunc.substring(1);
+                    }
+
+                    break;
+            }
+
+            //-----------------)>
+
+            result[field] = $sanitize(nameFunc, $typenize(nameFunc, fieldData, schemaData, true), schemaData);
+        }
+
+        return result;
+    }
+
+    //-----)>
+
+    function $validateString(schema, data, options) {
+        return $validate(schema, data, options, options.data);
+    }
+
+    function $validateHashTable(schema, data, options) {
+        var optScenario = options.on,
+            optErrors   = options.errors;
+
+        var result = optErrors ? null : true;
+
+        for(var field in schema) {
+            if(!Object.prototype.hasOwnProperty.call(schema, field)) continue;
+
+            var nameFunc,
+
+                schemaData  = schema[field],
+                fieldData   = data[field];
+
+            if(!schemaData) {
+                throw new Error("[!] Validation | schemaData: " + schemaData);
+            }
+
+            //-----------------)>
+
+            switch(typeof(schemaData)) {
+                case "string":
+                    nameFunc = schemaData;
+                    schemaData = {};
+
+                    break;
+
+                case "object":
+                    nameFunc = schemaData.rule || schemaData.use;
+
+                    if(checkScenario(schemaData.on, optScenario))
+                        continue;
+
+                    break;
+
+                default:
+                    throw new Error("[!] Validation | schemaData: " + schemaData);
+            }
+
+            switch(typeof(nameFunc)) {
+                case "string":
+                    if(nameFunc[0] === "?") {
+                        if(typeof(fieldData) === "undefined")
+                            continue;
+
+                        nameFunc = nameFunc.substring(1);
+                    }
+
+                    break;
+            }
+
+            //-----------------)>
+
+            if(!$validate(nameFunc, fieldData, schemaData, data)) {
+                if(optErrors) {
+                    result = result || [];
+                    result.push({
+                        "field":    field,
+                        "use":      nameFunc,
+
+                        "input":    fieldData
+                    });
+                } else {
+                    result = false;
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    //----------------)>
 
     function $typenize(type, input, options, isUseSanitize) {
         if(type === "custom")
@@ -861,7 +863,7 @@ var $aigis = (function createInstance() {
 
     //-------[HELPERS]-------}>
 
-    function runSchema(mode, schema, data, options, callbacks) {
+    function runSchema(mode, schema, data, options, cbString, cbHashTable) {
         if(!schema)
             throw new Error("[!] Empty schema.");
 
@@ -885,7 +887,7 @@ var $aigis = (function createInstance() {
                 schema = schema.substring(1);
             }
 
-            return callbacks.string(schema, data, options);
+            return cbString(schema, data, options);
         }
 
         //-------]>
@@ -904,7 +906,7 @@ var $aigis = (function createInstance() {
 
             //----------------)>
 
-            return callbacks.hashTable(schema, data, options);
+            return cbHashTable(schema, data, options);
         }
 
         //----------------]>
