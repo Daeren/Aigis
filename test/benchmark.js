@@ -52,7 +52,7 @@ var rAigis = require("./../index");
     var data = 1;
 
     var fXEnd = function (in2) { return parseFloat(in2); };
-    var fXBegin = function(in1) { return fXEnd(); };
+    var fXBegin = function(in1) { return fXEnd(in1); };
 
     console.time("parseFloat + functions");
 
