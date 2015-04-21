@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.022
+// Version: 0.00.023
 //
 //-----------------------------------------------------
 
@@ -374,32 +374,32 @@ var $aigis = (function createInstance() {
                 return input + "";
 
             case "integer":
-                if(input instanceof(Date)) {
-                    if(typeof(input.valueOf) === "function")
-                        input = input.valueOf(); else return NaN;
-                }
+                if(input === null) return NaN;
 
                 switch(typeof(input)) {
                     case "undefined": return NaN;
 
-                    default:
-                        if(input === null) return NaN;
+                    case "object":
+                        if(input instanceof(Date)) {
+                            if(typeof(input.valueOf) === "function")
+                                input = input.valueOf(); else return NaN;
+                        }
                 }
 
                 return parseInt(input, options.radix || 10);
 
             case "float":
-                if(input instanceof(Date)) {
-                    if(typeof(input.valueOf) === "function")
-                        input = input.valueOf(); else return NaN;
-                }
+                if(input === null) return NaN;
 
                 switch(typeof(input)) {
                     case "number": return input;
                     case "undefined": return NaN;
 
-                    default:
-                        if(input === null) return NaN;
+                    case "object":
+                        if(input instanceof(Date)) {
+                            if(typeof(input.valueOf) === "function")
+                                input = input.valueOf(); else return NaN;
+                        }
                 }
 
                 return parseFloat(input);
