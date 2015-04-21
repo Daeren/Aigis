@@ -4,11 +4,12 @@
 ```js
 require("aigis");
 
-$typenize({name: "string"}, {name: 13, "skipThisField": "data"});
-$sanitize({name: {type: "string", max: 2}}, {name: "Omnomnomnus", "delThisField": "data"});
+$typenize({name: "string"}, {name: 13, skipThisField: "data"});
+$sanitize({name: {type: "string", max: 2}}, {name: "Omnomnus", delThisField: "data"});
 $validate("integer", "2");
 
-$sanitize("array", [6.9, "name", "delThisElem"], {"schema": ["integer", "string"]})
+$sanitize("array", [6.9, "name", "delThisElem"], {schema: ["integer", "string"]});
+$validate("?email", undefined);
 ```
 
 * Schema-tree (hashTable, array): +
@@ -265,18 +266,6 @@ $validate.rule("testRuleMax10", function(input, options) {
 console.log("0#", $validate("testRuleMax10", 50));
 console.log("1#", $validate("testRuleMax10", 8));
 
-
-console.log("+-------------------------+");
-console.log("| V: String");
-console.log("+-------------------------+");
-
-console.log(JSON.stringify({
-    "T0":   $validate("string", 10),
-    "T1":   $validate("integer", "10"),
-    "T2":   $validate("email", "0d@root.pop"),
-    "T3":   $validate("email", "0d-root.pop"),
-    "T4":   $validate("?email", undefined)
-}, null, "\t"));
 
 console.log("+-------------------------+");
 console.log("| V: HashTable");
