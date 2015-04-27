@@ -10,6 +10,14 @@ $validate("integer", "2");
 
 $sanitize("array", [6.9, "name", "delThisElem"], {schema: ["integer", "string"]});
 $validate("?email", undefined);
+
+
+$sanitize.type("testTypeDate", function(input, options) { return new Date(input); });
+$validate.rule("testRuleMax10", function(input, options) { return options.k * input < 10; });
+
+$typenize("testTypeDate", "---");
+$sanitize("testTypeDate", "Thu, 01 Jan 1970 00:00:00 GMT-0400");
+$validate("testRuleMax10", 50, {k: 2});
 ```
 
 * Schema-tree (hashTable, array): +
@@ -220,18 +228,6 @@ $validate(schema, data);
 //-----------------------------------------------------
 
 console.log("+-------------------------+");
-console.log("| S: Custom");
-console.log("+-------------------------+");
-
-$sanitize.type("testTypeDateEasy", function(input, options) {
-    return new Date(input);
-});
-
-console.log("0#", $sanitize("testTypeDateEasy", "Thu, 01 Jan 1970 00:00:00 GMT-0400"));
-console.log("1#", $sanitize("testTypeDateEasy", "---"));
-
-
-console.log("+-------------------------+");
 console.log("| S: String");
 console.log("+-------------------------+");
 
@@ -257,18 +253,6 @@ var schema  = {
 
 console.log("0#", $sanitize(schema, data));
 
-
-
-console.log("+-------------------------+");
-console.log("| V: Custom");
-console.log("+-------------------------+");
-
-$validate.rule("testRuleMax10", function(input, options) {
-    return input < 10;
-});
-
-console.log("0#", $validate("testRuleMax10", 50));
-console.log("1#", $validate("testRuleMax10", 8));
 
 
 console.log("+-------------------------+");
