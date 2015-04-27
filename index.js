@@ -33,6 +33,18 @@ var $aigis = (function createInstance() {
         "el-GR" :   /^(\+30)?((2\d{9})|(69\d{8}))$/
     };
 
+    var gVUUIDs = {
+        0: /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i,
+        3: /^[0-9A-F]{8}-[0-9A-F]{4}-3[0-9A-F]{3}-[0-9A-F]{4}-[0-9A-F]{12}$/i,
+        4: /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+        5: /^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
+    };
+
+    var gVIPs = {
+        4: /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
+        6: /^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/
+    };
+
     //-----------------------------]>
 
     var gExport = {
@@ -808,27 +820,28 @@ var $aigis = (function createInstance() {
 
                 return rgPhone && rgPhone.test(input);
 
+            //-----------[UUID]-------------}>
+
             case "uuid":
                 if(!input || typeof(input) !== "string")
                     return false;
 
                 //---)>
 
-                var version = options.version,
-                    pattern;
+                var version = options.version;
 
-                if(version == 3 || version == "v3")
-                    pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-3[0-9A-F]{3}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
-                else if(version == 4 || version == "v4")
-                    pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
-                else if(version == 5 || version == "v5")
-                    pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
-                else
-                    pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
+                return version ? $validate("uuid.v" + version, input) : gVUUIDs[0].test(input);
 
-                return pattern.test(input);
+            case "uuid.v3":
+                return !!input && typeof(input) === "string" && gVUUIDs[3].test(input);
 
-            //------------------------]>
+            case "uuid.v4":
+                return !!input && typeof(input) === "string" && gVUUIDs[4].test(input);
+
+            case "uuid.v5":
+                return !!input && typeof(input) === "string" && gVUUIDs[5].test(input);
+
+            //-----------[IP]-------------}>
 
             case "ip":
                 var version = options.version;
@@ -836,10 +849,10 @@ var $aigis = (function createInstance() {
                 return version ? $validate("ip.v" + version, input) : ($validate("ip.v4", input) || $validate("ip.v6", input));
 
             case "ip.v4":
-                return typeof(input) === "string" && (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/).test(input);
+                return !!input && typeof(input) === "string" && gVIPs[4].test(input);
 
             case "ip.v6":
-                return typeof(input) === "string" && (/^::|^::1|^([a-fA-F0-9]{1,4}::?){1,7}([a-fA-F0-9]{1,4})$/).test(input);
+                return !!input && typeof(input) === "string" && gVIPs[6].test(input);
 
             //------------------------]>
 

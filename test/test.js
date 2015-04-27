@@ -445,6 +445,9 @@ console.log("| Validate");
     testV(true, "uuid", "550e8400-e29b-41d4-a716-446655440000");
     testV(false, "uuid", "550e8400-e29b-41d4-a716-4466554400000");
     testV(false, "uuid", "550e8400-e29b-41d4-a716-446655440000x");
+    testV(false, "uuid.v3", "550e8400-e29b-41d4-a716-446655440000");
+    testV(true, "uuid.v4", "550e8400-e29b-41d4-a716-446655440000");
+    testV(false, "uuid.v5", "550e8400-e29b-41d4-a716-446655440000");
 
 
     testV(false, "ip", "");
@@ -457,6 +460,9 @@ console.log("| Validate");
     testV(true, "ip", "2001:db8::7");
     testV(true, "ip", "::");
     testV(false, "ip", "2001:xb8::7");
+    testV(true, "ip.v4", "100.005.055.88");
+    testV(false, "ip.v4", "3FFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF");
+    testV(true, "ip.v6", "3FFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF");
 
     testV(false, "ascii", "");
     testV(true, "ascii", "testV 99");
