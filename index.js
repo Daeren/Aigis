@@ -9,18 +9,18 @@
 var $aigis = (function createInstance() {
     "use strict";
 
-    //-----------------------------------------------------
+    //-----------------------------------------------]>
 
     var C_MODE_TYPENIZE         = 1,
         C_MODE_SANITIZE         = 2,
         C_MODE_VALIDATE         = 3;
 
-    var customTypesStore        = {},
-        customRulesStore        = {};
+    var gCustomTypesStore       = {},
+        gCustomRulesStore       = {};
 
-    var typenizeSchemaStore     = {},
-        sanitizeSchemaStore     = {},
-        validateSchemaStore     = {};
+    var gTypenizeSchemaStore    = {},
+        gSanitizeSchemaStore    = {},
+        gValidateSchemaStore    = {};
 
     var gVPhones = {
         "ru-RU":    /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/,
@@ -95,12 +95,12 @@ var $aigis = (function createInstance() {
         },
 
         "type": function(name, func) {
-            wFuncStore(name, func, customTypesStore);
+            wFuncStore(name, func, gCustomTypesStore);
             return this;
         },
 
         "rule": function(name, func) {
-            wFuncStore(name, func, customRulesStore);
+            wFuncStore(name, func, gCustomRulesStore);
             return this;
         },
 
@@ -119,13 +119,13 @@ var $aigis = (function createInstance() {
         }
     };
 
-    //---------[Storage]----------}>
+    //---------[Storage]---------}>
 
     ["set", "get", "run"]
         .forEach(function(name) {
-            gExport.typenize[name] = buildFunc(gExport.typenize, typenizeSchemaStore);
-            gExport.sanitize[name] = buildFunc(gExport.sanitize, sanitizeSchemaStore);
-            gExport.validate[name] = buildFunc(gExport.validate, validateSchemaStore);
+            gExport.typenize[name] = buildFunc(gExport.typenize, gTypenizeSchemaStore);
+            gExport.sanitize[name] = buildFunc(gExport.sanitize, gSanitizeSchemaStore);
+            gExport.validate[name] = buildFunc(gExport.validate, gValidateSchemaStore);
 
             function buildFunc(obj, store) {
                 switch(name) {
@@ -152,7 +152,7 @@ var $aigis = (function createInstance() {
 
     return gExport;
 
-    //-----------------------------]>
+    //-----------------------------------------------]>
 
     function $typenizeHashTable(schema, data, options) {
         var optScenario = options.on;
@@ -478,7 +478,7 @@ var $aigis = (function createInstance() {
             //------------------------]>
 
             default:
-                var func = customTypesStore[type];
+                var func = gCustomTypesStore[type];
 
                 if(func)
                     return func(input, options);
@@ -865,7 +865,7 @@ var $aigis = (function createInstance() {
             //------------------------]>
 
             default:
-                var func = customRulesStore[use];
+                var func = gCustomRulesStore[use];
 
                 if(func)
                     return func(input, options);
