@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.023
+// Version: 0.00.024
 //
 //-----------------------------------------------------
 
@@ -107,11 +107,13 @@ var $aigis = (function createInstance() {
         //--------]>
 
         "typenize": function(schema, data, options) {
-            return runSchema(C_MODE_TYPENIZE, schema, data, options, $typenize, $typenizeHashTable);
+            return arguments.length === 1 ?
+                createModel(schema, gExport.typenize) : runSchema(C_MODE_TYPENIZE, schema, data, options, $typenize, $typenizeHashTable);
         },
 
         "sanitize": function(schema, data, options) {
-            return runSchema(C_MODE_SANITIZE, schema, data, options, $sanitizeString, $sanitizeHashTable);
+            return arguments.length === 1 ?
+                createModel(schema, gExport.sanitize) : runSchema(C_MODE_SANITIZE, schema, data, options, $sanitizeString, $sanitizeHashTable);
         },
 
         "validate": function(schema, data, options) {
@@ -874,7 +876,55 @@ var $aigis = (function createInstance() {
         }
     }
 
+    function $format(data, str, fnc) {
+        if(data === null)
+            return str;
+
+        var d;
+
+        //------[Array]------}>
+
+        if(Array.isArray(data)) {
+            for(var i = 0, len = data.length; i < len; i++) {
+                str = str.replace("{" + i + "}", data[i]);
+            }
+
+            return str;
+        }
+
+        //------[~]------}>
+
+        switch(typeof(data)) {
+            case "undefined":
+                return str;
+
+            case "object":
+                for(var field in data) {
+                    if(!Object.prototype.hasOwnProperty.call(data, field)) continue;
+
+                    d = data[field];
+                    str = fnc ? fnc(field, d, str) : str.replace("{" + field + "}", d);
+                }
+
+                return str;
+        }
+
+        return str.replace("{}", data);
+    }
+
     //-------[HELPERS]-------}>
+
+    function createModel(schema, func) {
+        var result = function(data, options) {
+            return func(schema, data, options);
+        };
+
+        result.format = function(str, data, options) {
+            return $format(func(schema, data, options), str);
+        };
+
+        return result;
+    }
 
     function runSchema(mode, schema, data, options, cbString, cbHashTable) {
         if(!schema)

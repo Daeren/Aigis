@@ -13,6 +13,62 @@ require("../index");
 
 //-----------------------------------------------------
 
+var schUser = {"name": "string", "score": "integer"};
+
+var tpzUser = $typenize(schUser),
+    snzUser = $sanitize(schUser);
+
+var data = {"name": "DT", "score": 13.7, "someData": 999};
+
+
+console.log(
+    tpzUser(data)
+);
+console.log(
+    tpzUser.format("My name: {name};\nMy score: {score};", data)
+);
+
+
+console.log("\n");
+
+console.log(
+    snzUser(data)
+);
+console.log(
+    snzUser.format("My name: {name};\nMy score: {score};", data)
+);
+
+
+console.log("\n");
+
+console.log(
+    $typenize("hashTable").format("INFO | {video}: {views}", '{"video": "cats", "views": 100500}')
+);
+console.log(
+    $sanitize("array").format("Array: {2}, {1}, {0}", "[11, 12, 13]", {"max": 2})
+);
+console.log(
+    $typenize("string").format("Date: {}", new Date())
+);
+
+return; // <--------------- !
+
+
+console.log(
+    $typenize.format({"name": "DT", "score": 12.2}, "My name: {name};\nMy score: {score};")
+);
+
+console.log(
+    $typenize.format("My name: {0};\nMy score: {1};", "DT", 11.1)
+);
+
+return; // <--------------- !
+
+
+//-----------------------------------------------------
+
+
+
 var data = {
     "data": [2.2, "name", "[skip/del]ThisElem"]
 };
@@ -48,7 +104,6 @@ console.log(
 console.log("\n\n");
 
 //-----------]>
-
 
 var schema = {
     "data": {

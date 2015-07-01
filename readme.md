@@ -4,6 +4,13 @@
 ```js
 require("aigis");
 
+//-----------------------------
+
+$typenize("hashTable").format("INFO | {video}: {views}", '{"video": "cats", "views": 100500}');
+$typenize("string").format("Date: {}", new Date());
+$sanitize("array").format("Array: {2}, {1}, {0}", "[11, 12, 13]", {"max": 2})
+
+
 $typenize({name: "string"}, {name: 13, skipThisField: "data"});
 $sanitize({name: {type: "string", max: 2}}, {name: "Omnomnus", delThisField: "data"});
 $validate("integer", "2");
@@ -18,6 +25,22 @@ $validate.rule("testRuleMax10", function(input, options) { return options.k * in
 $typenize("testTypeDate", "---");
 $sanitize("testTypeDate", "Thu, 01 Jan 1970 00:00:00 GMT-0400");
 $validate("testRuleMax10", 50, {k: 2});
+
+//---------]>
+
+var schUser = {"name": "string", "score": "integer"};
+
+var tpzUser = $typenize(schUser),
+    snzUser = $sanitize(schUser);
+
+var data = {"name": "DT", "score": 13.7, "someData": 9};
+
+
+tpzUser(data);
+tpzUser.format("My name: {name};\nMy score: {score};", data);
+
+snzUser(data);
+snzUser.format("My name: {name};\nMy score: {score};", data);
 ```
 
 * Schema-tree (hashTable, array): +
@@ -42,8 +65,8 @@ $validate("testRuleMax10", 50, {k: 2});
 | type        		| Set/Delete custom Type (Sanitize) 								| (name (String/HashTable), [func]) ~ func(input, options) |
 | rule        		| Set/Delete custom Rule (Validate) 								| (name (String/HashTable), [func]) ~ func(input, options) |
 |             		| -           ||			
-| typenize    		| -								   									| (schema (String/HashTable), data, [options]) 		|
-| sanitize    		| -								   									| (schema (String/HashTable), data, [options]) 		|
+| typenize    		| -								   									| (schema (String/HashTable), [data], [options]) 		|
+| sanitize    		| -								   									| (schema (String/HashTable), [data], [options]) 		|
 | validate    		| -								   									| (schema (String/HashTable), data, [options]) 		|
 
 
