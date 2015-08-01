@@ -16,13 +16,14 @@ require("../index");
 var schUser = {"name": "string", "score": "integer"};
 
 var tpzUser = $typenize(schUser),
-    snzUser = $sanitize(schUser);
+    snzUser = $sanitize(schUser),
+    vldUser = $validate(schUser);
 
 var data = {"name": "DT", "score": 13.7, "someData": 999};
 
 
 console.log(
-    tpzUser(data)
+    tpzUser(data) //_ Rewrite
 );
 console.log(
     tpzUser.format("My name: {name};\nMy score: {score};", data)
@@ -32,7 +33,7 @@ console.log(
 console.log("\n");
 
 console.log(
-    snzUser(data)
+    snzUser(data) //_ New object
 );
 console.log(
     snzUser.format("My name: {name};\nMy score: {score};", data)
@@ -42,7 +43,21 @@ console.log(
 console.log("\n");
 
 console.log(
-    $typenize("hashTable").format("INFO | {video}: {views}", '{"video": "cats", "views": 100500}')
+    data,
+
+    vldUser(data),
+    vldUser(tpzUser(data)),
+    vldUser(snzUser(data))
+);
+console.log(
+    vldUser.format("vldUser: {}", data)
+);
+
+
+console.log("\n");
+
+console.log(
+    $typenize("hashTable").format("{video}: {views}", '{"video": "cats", "views": 100500}')
 );
 console.log(
     $sanitize("array").format("Array: {2}, {1}, {0}", "[11, 12, 13]", {"max": 2})

@@ -1,6 +1,6 @@
 {
     "name": "aigis",
-    "version": "0.0.24",
+    "version": "0.0.25",
     "description": "Simple and Powerful module for strict data control",
 
     "homepage": "http://666.io",
@@ -38,6 +38,6 @@
         "url": "https://github.com/Daeren/Aigis/issues"
     },
 
-    "_id": "aigis@0.0.24",
+    "_id": "aigis@0.0.25",
     "_from": "aigis@"
 }

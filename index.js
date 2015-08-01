@@ -2,7 +2,7 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.024
+// Version: 0.00.025
 //
 //-----------------------------------------------------
 
@@ -117,7 +117,8 @@ var $aigis = (function createInstance() {
         },
 
         "validate": function(schema, data, options) {
-            return runSchema(C_MODE_VALIDATE, schema, data, options, $validateString, $validateHashTable);
+            return arguments.length === 1 ?
+                createModel(schema, gExport.validate) : runSchema(C_MODE_VALIDATE, schema, data, options, $validateString, $validateHashTable);
         }
     };
 
@@ -364,28 +365,31 @@ var $aigis = (function createInstance() {
 
         switch(type) {
             case "boolean":
-                if(typeof(input) === "boolean")
-                    return input;
+                switch(typeof(input)) {
+                    case "boolean":
+                        return input;
 
-                if(typeof(input) === "string")
-                    return input === "true" || input === "on" || input === "yes" || input === "1";
+                    case "string":
+                        return input === "true" || input === "on" || input === "yes" || input === "1";
+                }
 
                 return input === 1;
 
             case "string":
-                if(typeof(input) === "string")
-                    return input;
+                if(input === null) return "";
 
-                if(input === null || typeof(input) === "undefined")
-                    return "";
+                switch(typeof(input)) {
+                    case "string":
+                        return input;
 
-                if(typeof(input.toString) === "function")
-                    return input.toString();
+                    case "undefined":
+                        return "";
 
-                if(typeof(input) === "object")
-                    return Object.prototype.toString.call(input);
+                    case "object":
+                        return typeof(input.toString) === "function" ? input.toString() : Object.prototype.toString.call(input);
+                }
 
-                return input + "";
+                return typeof(input.toString) === "function" ? input.toString() : input + "";
 
             case "integer":
                 if(input === null) return NaN;
@@ -513,10 +517,13 @@ var $aigis = (function createInstance() {
 
                 if(options.trim)
                     input = input.trim();
-                else if(options.ltrim)
-                    input = input.replace(/^[\s\uFEFF\xA0]+/g, "");
-                else if(options.rtrim)
-                    input = input.replace(/[\s\uFEFF\xA0]+$/g, "");
+                else {
+                    if(options.ltrim)
+                        input = input.replace(/^[\s\uFEFF\xA0]+/g, "");
+
+                    if(options.rtrim)
+                        input = input.replace(/[\s\uFEFF\xA0]+$/g, "");
+                }
 
                 //------------]>
 
@@ -527,8 +534,10 @@ var $aigis = (function createInstance() {
 
                 if(options.trim)
                     input = input.trim();
-                else if(options.rtrim)
-                    input = input.replace(/[\s\uFEFF\xA0]+$/g, "");
+                else {
+                    if(options.rtrim)
+                        input = input.replace(/[\s\uFEFF\xA0]+$/g, "");
+                }
 
                 //------------]>
 
@@ -772,7 +781,7 @@ var $aigis = (function createInstance() {
                 return typeof(input) === "string" && !!input.match(/^(?:[\w\!\#\$\%\&\"\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\"\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!\.)){0,61}[a-zA-Z0-9]?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!$)){0,61}[a-zA-Z0-9]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/);
 
             case "url":
-                return typeof(input) === "string" && !!input.match(/^(?!mailto:)(?:(?:https?|ftp|ssh|ws|gopher|news|telnet|ldap):\/\/)?(?:\S+(?::\S*)?@)?(?:(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))|localhost)(?::\d{2,5})?(?:\/[^\s]*)?$/i);
+                return typeof(input) === "string" && !!input.match(/^(?:(?:https?|ftp|ssh|ws|gopher|news|telnet|ldap):\/\/)?(?:\S+(?::\S*)?@)?(?:(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))|localhost)(?::\d{2,5})?(?:\/[^\s]*)?$/i);
 
             case "mongoId":
                 return typeof(input) === "string" && !!input.match(/^[0-9a-fA-F]{24}$/);
@@ -818,9 +827,18 @@ var $aigis = (function createInstance() {
 
                 //---)>
 
-                var rgPhone = gVPhones[options.locale || "ru-RU"];
+                var locale = options.locale;
 
-                return rgPhone && rgPhone.test(input);
+                if(locale && Array.isArray(locale)) {
+                    var result = false;
+
+                    for(var i = 0, l = locale.length; !result || i < l; i++)
+                        result = gVPhones[locale[i]].test(input);
+
+                    return result;
+                }
+
+                return gVPhones[locale || "ru-RU"].test(input);
 
             //-----------[UUID]-------------}>
 
@@ -832,7 +850,19 @@ var $aigis = (function createInstance() {
 
                 var version = options.version;
 
-                return version ? $validate("uuid.v" + version, input) : gVUUIDs[0].test(input);
+                if(!version)
+                    return gVUUIDs[0].test(input);
+
+                if(Array.isArray(version)) {
+                    var result = false;
+
+                    for(var i = 0, l = version.length; !result || i < l; i++)
+                        result = validate("uuid.v" + version[i], input);
+
+                    return result;
+                }
+
+                return $validate("uuid.v" + version, input);
 
             case "uuid.v3":
                 return !!input && typeof(input) === "string" && gVUUIDs[3].test(input);

@@ -6,7 +6,7 @@ require("aigis");
 
 //-----------------------------
 
-$typenize("hashTable").format("INFO | {video}: {views}", '{"video": "cats", "views": 100500}');
+$typenize("hashTable").format("{video}: {views}", '{"video": "cats", "views": 100500}');
 $typenize("string").format("Date: {}", new Date());
 $sanitize("array").format("Array: {2}, {1}, {0}", "[11, 12, 13]", {"max": 2})
 
@@ -31,7 +31,8 @@ $validate("testRuleMax10", 50, {k: 2});
 var schUser = {"name": "string", "score": "integer"};
 
 var tpzUser = $typenize(schUser),
-    snzUser = $sanitize(schUser);
+    snzUser = $sanitize(schUser),
+    vldUser = $validate(schUser);
 
 var data = {"name": "DT", "score": 13.7, "someData": 9};
 
@@ -41,6 +42,9 @@ tpzUser.format("My name: {name};\nMy score: {score};", data);
 
 snzUser(data);
 snzUser.format("My name: {name};\nMy score: {score};", data);
+
+vldUser(data);
+vldUser.format("vldUser: {}", data);
 ```
 
 * Schema-tree (hashTable, array): +
@@ -67,7 +71,7 @@ snzUser.format("My name: {name};\nMy score: {score};", data);
 |             		| -           ||			
 | typenize    		| -								   									| (schema (String/HashTable), [data], [options]) 		|
 | sanitize    		| -								   									| (schema (String/HashTable), [data], [options]) 		|
-| validate    		| -								   									| (schema (String/HashTable), data, [options]) 		|
+| validate    		| -								   									| (schema (String/HashTable), [data], [options]) 		|
 
 
 | Options     | Desc        | Val 		  |
