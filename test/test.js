@@ -137,10 +137,10 @@ console.log("| Sanitize");
     {
         var result;
 
-        result = $sanitize(schema, {"pts": 50}, {"on": ""});
+        result = $sanitize(schema, {"pts": 50}, {"scenario": ""});
         testX(undefined, result.pts, "result.pts");
 
-        result = $sanitize(schema, {"pts": 50}, {"on": "update"});
+        result = $sanitize(schema, {"pts": 50}, {"scenario": "update"});
         testX(30, result.pts, "result.pts");
     }
 
@@ -241,10 +241,10 @@ console.log("| Validate");
     {
         var result;
 
-        result = $validate(schema, {"pts": 50}, {"on": ""});
+        result = $validate(schema, {"pts": 50}, {"scenario": ""});
         testX(true, result, "result.pts");
 
-        result = $validate(schema, {"pts": 50}, {"on": "update"});
+        result = $validate(schema, {"pts": 50}, {"scenario": "update"});
         testX(false, result, "result.pts");
     }
 

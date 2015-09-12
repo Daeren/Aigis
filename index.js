@@ -2,11 +2,10 @@
 //
 // Author: Daeren Torn
 // Site: 666.io
-// Version: 0.00.025
 //
 //-----------------------------------------------------
 
-var $aigis = (function createInstance() {
+var $aigis = (function createInstance(isGlobal) {
     "use strict";
 
     //-----------------------------------------------]>
@@ -48,78 +47,24 @@ var $aigis = (function createInstance() {
     //-----------------------------]>
 
     var gExport = {
-        "createInstance": function(isGlobal) {
-            var r = createInstance();
-
-            r.global(isGlobal);
-
-            return r;
-        },
+        "createInstance":   createInstance,
 
         //--------]>
 
-        "global": function(v) {
-            if(global && typeof(global) !== "object" || typeof(v) === "undefined")
-                return this;
+        "global":           setGlobal,
 
-            if(v) {
-                var gTObj = gExport.typenize,
-                    gSObj = gExport.sanitize,
-                    gVObj = gExport.validate;
-
-                for(var i in gExport) {
-                    if(gExport.hasOwnProperty(i))
-                        gTObj[i] = gSObj[i] = gVObj[i] = gExport[i];
-                }
-
-                if(typeof(global.$typenize) === "undefined")
-                    global.$typenize = gTObj;
-
-                if(typeof(global.$sanitize) === "undefined")
-                    global.$sanitize = gSObj;
-
-                if(typeof(global.$validate) === "undefined")
-                    global.$validate = gVObj;
-            } else {
-                if(global.$typenize === gExport.typenize)
-                    delete global.$typenize;
-
-                if(global.$sanitize === gExport.sanitize)
-                    delete global.$sanitize;
-
-                if(global.$validate === gExport.validate)
-                    delete global.$validate;
-            }
-
-            return this;
-        },
-
-        "type": function(name, func) {
-            wFuncStore(name, func, gCustomTypesStore);
-            return this;
-        },
-
-        "rule": function(name, func) {
-            wFuncStore(name, func, gCustomRulesStore);
-            return this;
-        },
+        "type":             type,
+        "rule":             rule,
 
         //--------]>
 
-        "typenize": function(schema, data, options) {
-            return arguments.length === 1 ?
-                createModel(schema, gExport.typenize) : runSchema(C_MODE_TYPENIZE, schema, data, options, $typenize, $typenizeHashTable);
-        },
+        "typenize":         typenize,
+        "sanitize":         sanitize,
+        "validate":         validate,
 
-        "sanitize": function(schema, data, options) {
-            return arguments.length === 1 ?
-                createModel(schema, gExport.sanitize) : runSchema(C_MODE_SANITIZE, schema, data, options, $sanitizeString, $sanitizeHashTable);
-        },
+        //--------]>
 
-        "validate": function(schema, data, options) {
-            return arguments.length === 1 ?
-                createModel(schema, gExport.validate) : runSchema(C_MODE_VALIDATE, schema, data, options, $validateString, $validateHashTable);
-        }
+        "mid":              mid
     };
 
     //---------[Storage]---------}>
@@ -151,14 +96,176 @@ var $aigis = (function createInstance() {
             }
         });
 
+    gExport.global(isGlobal);
+
     //------------------)>
 
     return gExport;
 
     //-----------------------------------------------]>
 
+    function setGlobal(v) {
+        if(global && typeof(global) !== "object" || typeof(v) === "undefined")
+            return gExport;
+
+        if(v) {
+            var gTObj = gExport.typenize,
+                gSObj = gExport.sanitize,
+                gVObj = gExport.validate;
+
+            for(var i in gExport) {
+                if(gExport.hasOwnProperty(i))
+                    gTObj[i] = gSObj[i] = gVObj[i] = gExport[i];
+            }
+
+            if(typeof(global.$typenize) === "undefined")
+                global.$typenize = gTObj;
+
+            if(typeof(global.$sanitize) === "undefined")
+                global.$sanitize = gSObj;
+
+            if(typeof(global.$validate) === "undefined")
+                global.$validate = gVObj;
+        } else {
+            if(global.$typenize === gExport.typenize)
+                delete global.$typenize;
+
+            if(global.$sanitize === gExport.sanitize)
+                delete global.$sanitize;
+
+            if(global.$validate === gExport.validate)
+                delete global.$validate;
+        }
+
+        return gExport;
+    }
+
+    function type(name, func) {
+        wFuncStore(name, func, gCustomTypesStore);
+        return gExport;
+    }
+
+    function rule(name, func) {
+        wFuncStore(name, func, gCustomRulesStore);
+        return gExport;
+    }
+
+    //-----)>
+
+    function typenize(schema, data, options) {
+        return arguments.length === 1 ?
+            createModel(schema, gExport.typenize) : runSchema(C_MODE_TYPENIZE, schema, data, options, $typenize, $typenizeHashTable);
+    }
+
+    function sanitize(schema, data, options) {
+        return arguments.length === 1 ?
+            createModel(schema, gExport.sanitize) : runSchema(C_MODE_SANITIZE, schema, data, options, $sanitizeString, $sanitizeHashTable);
+    }
+
+    function validate(schema, data, options) {
+        return arguments.length === 1 ?
+            createModel(schema, gExport.validate) : runSchema(C_MODE_VALIDATE, schema, data, options, $validateString, $validateHashTable);
+    }
+
+    //-----)>
+
+    function mid(models, permittedMethods) {
+        if(Array.isArray(permittedMethods)) {
+            permittedMethods = permittedMethods.map(function(v) {
+                return v.toUpperCase();
+            });
+
+            if(permittedMethods.length == 1)
+                permittedMethods = permittedMethods[0];
+        } else if(typeof(permittedMethods) === "string")
+            permittedMethods = permittedMethods.toUpperCase();
+        else
+            permittedMethods = undefined;
+
+        //------------------]>
+
+        return main;
+
+        //------------------]>
+
+        function main(req, res, next) {
+            var model, options,
+                mdlName, mdlData, mdlScenario;
+
+            //----------]>
+
+            if(!permittedMethods) {
+                if(!extrFromOther()) extrFromGet();
+            } else {
+                if(permittedMethods === req.method || typeof(permittedMethods) !== "string" && permittedMethods.indexOf(req.method) != -1) {
+                    switch(req.method) {
+                        case "GET":
+                            extrFromGet();
+                            break;
+
+                        default:
+                            extrFromOther();
+                    }
+                }
+            }
+
+            if(model) {
+                if(mdlScenario)
+                    options = {"scenario": mdlScenario};
+
+                mdlData = sanitize(model, mdlData, options);
+
+                req.model = {
+                    "data":     mdlData,
+                    "validate": function() { return validate(model, mdlData, options); }
+                };
+            } else {
+                req.model = null;
+            }
+
+            //----------]>
+
+            next();
+
+            //----------]>
+
+            function extrFromGet() {
+                mdlName = req.query && req.query.model;
+
+                if(mdlName) {
+                    mdlData = req.query.data;
+
+                    if(mdlData)
+                        mdlData = decodeURIComponent(mdlData);
+
+                    mdlData = $typenize("hashTable", mdlData, {});
+                    mdlScenario = req.query.scenario;
+
+                    model = models[mdlName];
+                }
+
+                return !!mdlName;
+            }
+
+            function extrFromOther() {
+                mdlName = req.body && req.body.model;
+
+                if(mdlName) {
+                    mdlData = $typenize("hashTable", req.body.data, {});
+                    mdlScenario = req.body.scenario;
+
+                    model = models[mdlName];
+                }
+
+                return !!mdlName;
+            }
+        }
+    }
+
+    //----------------)>
+
     function $typenizeHashTable(schema, data, options) {
-        var optScenario = options.on;
+        var optScenario = options.scenario;
 
         var result = data;
 
@@ -221,7 +328,7 @@ var $aigis = (function createInstance() {
     }
 
     function $sanitizeHashTable(schema, data, options) {
-        var optScenario = options.on;
+        var optScenario = options.scenario;
 
         var result = {};
 
@@ -284,7 +391,7 @@ var $aigis = (function createInstance() {
     }
 
     function $validateHashTable(schema, data, options) {
-        var optScenario = options.on,
+        var optScenario = options.scenario,
             optErrors   = options.errors;
 
         var result = optErrors ? null : true;
@@ -432,7 +539,8 @@ var $aigis = (function createInstance() {
                 if(input && typeof(input) === "string") {
                     try {
                         input = JSON.parse(input);
-                    } catch(e) { }
+                    } catch(e) {
+                    }
                 }
 
                 input = input && typeof(input) === "object" && !Array.isArray(input) ? input : {};
@@ -1044,10 +1152,10 @@ var $aigis = (function createInstance() {
                 break;
         }
     }
-})();
+})(true);
 
 //-----------------------------------------------------
 
 if(module && typeof(module) == "object") {
-    module.exports = $aigis.global(true);
+    module.exports = $aigis;
 }
