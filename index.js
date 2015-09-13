@@ -216,7 +216,10 @@ var $aigis = (function createInstance(isGlobal) {
                 mdlData = sanitize(model, mdlData, options);
 
                 req.model = {
+                    "name":     mdlName,
                     "data":     mdlData,
+                    "scenario": mdlScenario || "",
+
                     "validate": function() { return validate(model, mdlData, options); }
                 };
             } else {

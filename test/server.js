@@ -50,6 +50,8 @@ objApp.all("/", function(req, res) {
 
     res.send(
         JSON.stringify(req.model.data) +
+        " | name: " + req.model.name +
+        " | scenario: " + req.model.scenario +
         " | validate: " + req.model.validate()
     );
 });
